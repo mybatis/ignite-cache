@@ -20,13 +20,11 @@ import java.util.concurrent.locks.ReadWriteLock;
 import org.apache.ibatis.cache.Cache;
 
 /**
- * Cache adapter for Redis.
+ * Cache adapter for Ignite.
  *
  * @author ?
  */
 public final class IgniteCache implements Cache {
-
-  private final ReadWriteLock readWriteLock = new DummyReadWriteLock();
 
   private String id;
 
@@ -72,8 +70,7 @@ public final class IgniteCache implements Cache {
 
   @Override
   public ReadWriteLock getReadWriteLock() {
-    // TODO Auto-generated method stub
-    return null;
+    return new DummyReadWriteLock();
   }
 
 }
