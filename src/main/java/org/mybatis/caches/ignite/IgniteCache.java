@@ -30,10 +30,14 @@ public final class IgniteCache implements Cache {
 
   private String id;
 
+  public IgniteCache(String id) {
+    super();
+    this.id = id;
+  }
+  
   @Override
   public String getId() {
-    // TODO Auto-generated method stub
-    return null;
+    return this.id;
   }
 
   @Override
