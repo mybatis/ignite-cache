@@ -30,19 +30,6 @@
         <!-- Set to true to enable distributed class loading for examples, default is false. -->
         <property name="peerClassLoadingEnabled" value="true"/>
 
-        <property name="cacheConfiguration">
-            <bean class="org.apache.ignite.configuration.CacheConfiguration">
-                <!-- Set a cache name. -->
-                <property name="name" value="myBatisCache"/>
-
-                <!-- Enable client mdoe. -->
-                <property name="clientMode" value="true"/>
-
-                <!-- Set cache mode to LOCAL by default. -->
-                <property name="cacheMode" value="PARTITIONED"/>
-            </bean>
-        </property>
-
         <!-- Explicitly configure TCP discovery SPI to provide list of initial nodes. -->
         <property name="discoverySpi">
             <bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">
@@ -65,6 +52,17 @@
                 </property>
             </bean>
         </property>
+    </bean>
+
+    <bean id="templateCacheCfg" class="org.apache.ignite.configuration.CacheConfiguration">
+        <!-- Set a cache name. -->
+        <property name="name" value="myBatisCache"/>
+
+        <!-- Enable client mdoe. -->
+        <property name="clientMode" value="true"/>
+
+        <!-- Set cache mode to LOCAL by default. -->
+        <property name="cacheMode" value="PARTITIONED"/>
     </bean>
 
 </beans>

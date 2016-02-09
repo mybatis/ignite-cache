@@ -22,19 +22,17 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                             http://www.springframework.org/schema/beans/spring-beans.xsd">
-    <bean class="org.apache.ignite.configuration.IgniteConfiguration">
+    <bean id="ignite.cfg" class="org.apache.ignite.configuration.IgniteConfiguration">
         <!-- Set to true to enable distributed class loading for examples, default is false. -->
         <property name="peerClassLoadingEnabled" value="true"/>
+    </bean>
 
-        <property name="cacheConfiguration">
-            <bean class="org.apache.ignite.configuration.CacheConfiguration">
-                <!-- Set a cache name. -->
-                <property name="name" value="myBatisCache"/>
+    <bean id="templateCacheCfg" class="org.apache.ignite.configuration.CacheConfiguration">
+        <!-- Set a cache name. -->
+        <property name="name" value="myBatisCache"/>
 
-                <!-- Set cache mode to LOCAL by default. -->
-                <property name="cacheMode" value="LOCAL"/>
-            </bean>
-        </property>
+        <!-- Set cache mode to LOCAL by default. -->
+        <property name="cacheMode" value="LOCAL"/>
     </bean>
 
 </beans>

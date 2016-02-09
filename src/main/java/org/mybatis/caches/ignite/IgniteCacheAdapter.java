@@ -12,6 +12,7 @@
  */
 package org.mybatis.caches.ignite;
 
+import java.io.File;
 import java.util.concurrent.locks.ReadWriteLock;
 import org.apache.ibatis.cache.Cache;
 import org.apache.ignite.Ignite;
@@ -19,10 +20,14 @@ import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CachePeekMode;
 import org.apache.ignite.configuration.CacheConfiguration;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.core.io.FileSystemResource;
 
 /**
- * Cache adapter for Ignite. Initialized from IGNITE_HOME/config/default-config.xml settings, otherwise default one is
- * started.
+ * Cache adapter for Ignite.
+ * Cache is initialized from IGNITE_HOME/config/default-config.xml settings, otherwise default one is started.
  *
  * @author Roman Shtykh
  */
@@ -48,11 +53,25 @@ public final class IgniteCacheAdapter implements Cache {
         if (id == null)
             throw new IllegalArgumentException("Cache instances require an ID");
 
-        // overrides default cache name with the specified id.
-        CacheConfiguration[] cacheConfigs = ignite.configuration().getCacheConfiguration();
-        CacheConfiguration cacheConfig = cacheConfigs[cacheConfigs.length - 1];
-        cacheConfig.setName(id);
-        cache = ignite.getOrCreateCache(cacheConfig);
+        DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+
+        new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(
+            new File("config/default-config.xml")));
+
+        CacheConfiguration cacheCfg = null;
+
+        try {
+            cacheCfg = (CacheConfiguration)factory.getBean("templateCacheCfg");
+
+            // overrides template cache name with the specified id.
+            cacheCfg.setName(id);
+        }
+        catch (NoSuchBeanDefinitionException e) {
+            // initializes the default cache.
+            cacheCfg = new CacheConfiguration(id);
+        }
+
+        cache = ignite.getOrCreateCache(cacheCfg);
 
         this.id = id;
     }
@@ -65,18 +84,21 @@ public final class IgniteCacheAdapter implements Cache {
 
     /** {@inheritDoc} */
     @Override
+    @SuppressWarnings("unchecked")
     public void putObject(Object key, Object value) {
         cache.put(key, value);
     }
 
     /** {@inheritDoc} */
     @Override
+    @SuppressWarnings("unchecked")
     public Object getObject(Object key) {
         return cache.get(key);
     }
 
     /** {@inheritDoc} */
     @Override
+    @SuppressWarnings("unchecked")
     public Object removeObject(Object key) {
         return cache.remove(key);
     }
