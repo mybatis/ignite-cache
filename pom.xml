@@ -14,20 +14,19 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis-parent</artifactId>
         <version>26</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <groupId>org.mybatis.caches</groupId>
     <artifactId>mybatis-ignite</artifactId>
-    <version>1.0.0-beta1-SNAPSHOT</version>
+    <version>1.0.0-beta1</version>
     <packaging>jar</packaging>
 
     <name>mybatis-ignite</name>
@@ -38,7 +37,7 @@
         <url>http://github.com/mybatis/ignite-cache</url>
         <connection>scm:git:ssh://github.com/mybatis/ignite-cache.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/mybatis/ignite-cache.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>mybatis-ignite-1.0.0-beta1</tag>
     </scm>
     <issueManagement>
         <system>GitHub Issue Management</system>
