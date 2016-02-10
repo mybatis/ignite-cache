@@ -61,6 +61,9 @@
         <findbugs.onlyAnalyze>org.mybatis.caches.ignite.*</findbugs.onlyAnalyze>
         <gcu.product>Cache</gcu.product>
         <ignite.version>1.5.0.final</ignite.version>
+
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -87,7 +90,7 @@
         <dependency>
             <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-spring</artifactId>
-            <version>1.5.0.final</version>
+            <version>${ignite.version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -96,8 +99,8 @@
         -->
         <dependency>
             <groupId>javax.transaction</groupId>
-            <artifactId>transaction-api</artifactId>
-            <version>1.1</version>
+            <artifactId>javax.transaction-api</artifactId>
+            <version>1.2</version>
             <scope>provided</scope>
         </dependency>
 
@@ -125,18 +128,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
     <profiles>
         <profile>
