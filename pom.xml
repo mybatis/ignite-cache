@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2015 The MyBatis Team
+  Copyright 2010-2016 The MyBatis Team
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,116 +14,151 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.mybatis</groupId>
-    <artifactId>mybatis-parent</artifactId>
-    <version>26</version>
-    <relativePath />
-  </parent>
+    <parent>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis-parent</artifactId>
+        <version>26</version>
+        <relativePath/>
+    </parent>
 
-  <groupId>org.mybatis.caches</groupId>
-  <artifactId>mybatis-ignite</artifactId>
-  <version>1.0.0-beta3-SNAPSHOT</version>
-  <packaging>jar</packaging>
+    <groupId>org.mybatis.caches</groupId>
+    <artifactId>mybatis-ignite</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
-  <name>mybatis-ignite</name>
-  <description>ignite support for MyBatis Cache</description>
-  <url>https://github.com/mybatis/ignite-cache</url>
+    <name>mybatis-ignite</name>
+    <description>ignite support for MyBatis Cache</description>
+    <url>https://github.com/mybatis/ignite-cache</url>
 
-  <scm>
-    <url>http://github.com/mybatis/ignite-cache</url>
-    <connection>scm:git:ssh://github.com/mybatis/ignite-cache.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/mybatis/ignite-cache.git</developerConnection>
-    <tag>HEAD</tag>
-  </scm>
-  <issueManagement>
-    <system>GitHub Issue Management</system>
-    <url>https://github.com/mybatis/ignite-cache/issues</url>
-  </issueManagement>
-  <ciManagement>
-    <system>Travis CI</system>
-    <url>https://travis-ci.org/mybatis/ignite-cache</url>
-  </ciManagement>
-  <distributionManagement>
-    <site>
-      <id>gh-pages</id>
-      <name>Mybatis GitHub Pages</name>
-      <url>git:ssh://git@github.com/mybatis/ignite-cache.git?gh-pages#</url>
-    </site>
-  </distributionManagement>
+    <scm>
+        <url>http://github.com/mybatis/ignite-cache</url>
+        <connection>scm:git:ssh://github.com/mybatis/ignite-cache.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/mybatis/ignite-cache.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+    <issueManagement>
+        <system>GitHub Issue Management</system>
+        <url>https://github.com/mybatis/ignite-cache/issues</url>
+    </issueManagement>
+    <ciManagement>
+        <system>Travis CI</system>
+        <url>https://travis-ci.org/mybatis/ignite-cache</url>
+    </ciManagement>
+    <distributionManagement>
+        <site>
+            <id>gh-pages</id>
+            <name>Mybatis GitHub Pages</name>
+            <url>git:ssh://git@github.com/mybatis/ignite-cache.git?gh-pages#</url>
+        </site>
+    </distributionManagement>
 
-  <properties>
-    <clirr.comparisonVersion>1.0.0</clirr.comparisonVersion>
-    <findbugs.onlyAnalyze>org.mybatis.caches.ignite.*</findbugs.onlyAnalyze>
-    <gcu.product>Cache</gcu.product>
-  </properties>
+    <properties>
+        <clirr.comparisonVersion>1.0.0</clirr.comparisonVersion>
+        <findbugs.onlyAnalyze>org.mybatis.caches.ignite.*</findbugs.onlyAnalyze>
+        <gcu.product>Cache</gcu.product>
+        <ignite.version>1.5.0.final</ignite.version>
+    </properties>
 
-  <dependencies>
-    <!--
-     | Provided dependencies
-    -->
-    <dependency>
-      <groupId>org.mybatis</groupId>
-      <artifactId>mybatis</artifactId>
-      <version>3.3.0</version>
-      <scope>provided</scope>
-    </dependency>
+    <dependencies>
+        <!--
+         | Provided dependencies
+        -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.3.0</version>
+            <scope>provided</scope>
+        </dependency>
 
-    <!--
-     | compile dependencies
-    -->
-	<dependency>
-      <groupId>org.apache.ignite</groupId>
-      <artifactId>ignite-core</artifactId>
-      <version>1.5.0.final</version>
-      <scope>compile</scope>
-	</dependency>
+        <!--
+         | compile dependencies
+        -->
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-core</artifactId>
+            <version>${ignite.version}</version>
+            <scope>compile</scope>
+        </dependency>
 
-    <!--
-     | trick to fix javadoc generation
-    -->
-    <dependency>
-      <groupId>javax.transaction</groupId>
-      <artifactId>transaction-api</artifactId>
-      <version>1.1</version>
-      <scope>provided</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-spring</artifactId>
+            <version>1.5.0.final</version>
+            <scope>compile</scope>
+        </dependency>
 
-    <!--
-     | test dependencies
-    -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+        <!--
+         | trick to fix javadoc generation
+        -->
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>transaction-api</artifactId>
+            <version>1.1</version>
+            <scope>provided</scope>
+        </dependency>
 
-  <profiles>
-    <profile>
-      <id>noTest</id>
-      <activation>
-        <property>
-          <name>noTest</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <build>
+        <!--
+         | test dependencies
+        -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-log4j</artifactId>
+            <version>${ignite.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <skipTests>true</skipTests>
-            </configuration>
-          </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
         </plugins>
-      </build>
-    </profile>
-  </profiles>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>noTest</id>
+            <activation>
+                <property>
+                    <name>noTest</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
