@@ -48,7 +48,7 @@
   ...
 </mapper>]]></source>
 
-  <p>The Ignite cache is configurable in <code>config/default-config.xml</code> (Simple reference configurations are available <a href="https://github.com/mybatis/ignite-cache/config">here</a>.)
+  <p>The Ignite cache is configurable in <code>config/default-config.xml</code> (Simple reference configurations are available <a href="https://github.com/mybatis/ignite-cache/tree/master/config">here</a>.)
   If not found, the cache is started with default settings.</p>
   
   <p>For more details, please see <a href="https://apacheignite.readme.io/">Apache Ignite docs</a> or ask in <a href="http://apache-ignite-users.70518.x6.nabble.com/">the mailing list</a>.</p>
