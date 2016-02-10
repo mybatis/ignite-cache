@@ -55,6 +55,7 @@ public final class IgniteCacheAdapter implements Cache {
      *
      * @param id Cache id.
      */
+    @SuppressWarnings("unchecked")
     public IgniteCacheAdapter(String id) {
         if (id == null)
             throw new IllegalArgumentException("Cache instances require an ID");
@@ -68,6 +69,10 @@ public final class IgniteCacheAdapter implements Cache {
                 new File("config/default-config.xml")));
 
             cacheCfg = (CacheConfiguration)factory.getBean("templateCacheCfg");
+
+            cacheCfg.setEvictionPolicy(null);
+            cacheCfg.setCacheLoaderFactory(null);
+            cacheCfg.setCacheWriterFactory(null);
 
             // overrides template cache name with the specified id.
             cacheCfg.setName(id);
