@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="Date-Revision-yyyymmdd" content="20160210" />
     <meta http-equiv="Content-Language" content="en" />
-    <title>mybatis-ignite &#x2013; MyBatis Ignite | Reference Documentation</title>
+    <title>mybatis-ignite &#x2013; Source Repository</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.4.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -62,10 +62,12 @@
                 <ul class="nav nav-list">
                     <li class="nav-header">Reference Documentation</li>
                               
-      <li class="active">
+      <li>
   
-            <a href="#"><span class="none"></span>Introduction</a>
-          </li>
+                          <a href="index.html" title="Introduction">
+          <span class="none"></span>
+        Introduction</a>
+            </li>
                               <li class="nav-header">Project Documentation</li>
                                                                                                                                                                                                                                                                                                                   
       <li>
@@ -103,10 +105,12 @@
         Distribution Management</a>
             </li>
                     
-      <li class="active">
+      <li>
   
-            <a href="#"><span class="none"></span>About</a>
-          </li>
+                          <a href="index.html" title="About">
+          <span class="none"></span>
+        About</a>
+            </li>
                     
       <li>
   
@@ -150,12 +154,10 @@
         Project Team</a>
             </li>
                     
-      <li>
+      <li class="active">
   
-                          <a href="source-repository.html" title="Source Repository">
-          <span class="none"></span>
-        Source Repository</a>
-            </li>
+            <a href="#"><span class="none"></span>Source Repository</a>
+          </li>
                     
       <li>
   
@@ -193,59 +195,24 @@
                 
         <div id="bodyColumn"  class="span10" >
                                   
-            <!-- Copyright 2016 The MyBatis Team
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License. --><!-- version: $Id$ -->
-
-  
-    <div class="section">
-<h2><a name="MyBatis_Ignite_Integration_-_Reference_Documentation"></a>MyBatis Ignite Integration - Reference Documentation</h2>
-
-    
-<p><a class="externalLink" href="https://apacheignite.readme.io/">Apache Ignite</a> is a high-performance, integrated and distributed in-memory platform for computing and transacting on large-scale data sets in real-time, orders of magnitude faster than possible with traditional disk-based or flash technologies.</p>
-    
-<p>Users who want to use Apache Ignite in their applications as a 2nd level cache have to download the
-    <a class="externalLink" href="https://github.com/mybatis/ignite-cache/releases">zip bundle</a>, decompress it and add the jars in the classpath.
-    Apache Maven users instead can simply add in the <tt>pom.xml</tt> the following dependency:</p>
-    
-<div class="source"><pre class="prettyprint">&lt;dependencies&gt;
-  ...
-  &lt;dependency&gt;
-    &lt;groupId&gt;org.mybatis.caches&lt;/groupId&gt;
-    &lt;artifactId&gt;mybatis-ignite&lt;/artifactId&gt;
-    &lt;version&gt;1.0.0-SNAPSHOT&lt;/version&gt;
-  &lt;/dependency&gt;
-  ...
-&lt;/dependencies&gt;</pre></div>
-            
-<p>then, just configure it in the mapper XML</p>
-            
-<div class="source"><pre class="prettyprint">&lt;mapper namespace=&quot;org.acme.FooMapper&quot;&gt;
-  &lt;cache type=&quot;org.mybatis.caches.ignite.IgniteCacheAdapter&quot; /&gt;
-  ...
-&lt;/mapper&gt;</pre></div>
-
-  
-<p>The Ignite cache is configurable in <tt>config/default-config.xml</tt> (Simple reference configurations are available <a class="externalLink" href="https://github.com/mybatis/ignite-cache/config">here</a>.)
-  If not found, the cache is started with default settings.</p>
-  
-  
-<p>For more details, please see <a class="externalLink" href="https://apacheignite.readme.io/">Apache Ignite docs</a> or ask in <a class="externalLink" href="http://apache-ignite-users.70518.x6.nabble.com/">the mailing list</a>.</p>
-
-        </div>
-    
-
-
+            <div class="section">
+<h2><a name="Overview"></a>Overview</h2><a name="Overview"></a>
+<p>This project uses <a class="externalLink" href="http://git-scm.com/">Git</a> to manage its source code. Instructions on Git use can be found at <a class="externalLink" href="http://git-scm.com/documentation">http://git-scm.com/documentation</a>.</p></div>
+<div class="section">
+<h2><a name="Web_Browser_Access"></a>Web Browser Access</h2><a name="Web_Browser_Access"></a>
+<p>The following is a link to a browsable version of the source repository:</p>
+<div class="source"><pre class="prettyprint"><a class="externalLink" href="http://github.com/mybatis/ignite-cache">http://github.com/mybatis/ignite-cache</a></pre></div></div>
+<div class="section">
+<h2><a name="Anonymous_Access"></a>Anonymous Access</h2><a name="Anonymous_Access"></a>
+<p>The source can be checked out anonymously from Git with this command (See <a class="externalLink" href="http://git-scm.com/docs/git-clone">http://git-scm.com/docs/git-clone</a>):</p>
+<div class="source"><pre class="prettyprint">$ git clone ssh://github.com/mybatis/ignite-cache.git</pre></div></div>
+<div class="section">
+<h2><a name="Developer_Access"></a>Developer Access</h2><a name="Developer_Access"></a>
+<p>Only project developers can access the Git tree via this method (See <a class="externalLink" href="http://git-scm.com/docs/git-clone">http://git-scm.com/docs/git-clone</a>).</p>
+<div class="source"><pre class="prettyprint">$ git clone ssh://git@github.com/mybatis/ignite-cache.git</pre></div></div>
+<div class="section">
+<h2><a name="Access_from_Behind_a_Firewall"></a>Access from Behind a Firewall</h2><a name="Access_from_Behind_a_Firewall"></a>
+<p>Refer to the documentation of the SCM used for more information about access behind a firewall.</p></div>
                   </div>
             </div>
           </div>

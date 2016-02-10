@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="Date-Revision-yyyymmdd" content="20160210" />
     <meta http-equiv="Content-Language" content="en" />
-    <title>mybatis-ignite &#x2013; MyBatis Ignite | Reference Documentation</title>
+    <title>mybatis-ignite &#x2013; Project Summary</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.4.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -62,10 +62,12 @@
                 <ul class="nav nav-list">
                     <li class="nav-header">Reference Documentation</li>
                               
-      <li class="active">
+      <li>
   
-            <a href="#"><span class="none"></span>Introduction</a>
-          </li>
+                          <a href="index.html" title="Introduction">
+          <span class="none"></span>
+        Introduction</a>
+            </li>
                               <li class="nav-header">Project Documentation</li>
                                                                                                                                                                                                                                                                                                                   
       <li>
@@ -103,10 +105,12 @@
         Distribution Management</a>
             </li>
                     
-      <li class="active">
+      <li>
   
-            <a href="#"><span class="none"></span>About</a>
-          </li>
+                          <a href="index.html" title="About">
+          <span class="none"></span>
+        About</a>
+            </li>
                     
       <li>
   
@@ -157,12 +161,10 @@
         Source Repository</a>
             </li>
                     
-      <li>
+      <li class="active">
   
-                          <a href="project-summary.html" title="Project Summary">
-          <span class="none"></span>
-        Project Summary</a>
-            </li>
+            <a href="#"><span class="none"></span>Project Summary</a>
+          </li>
               </ul>
         </li>
                                                                                                                                                                                                                                                                                           
@@ -193,59 +195,56 @@
                 
         <div id="bodyColumn"  class="span10" >
                                   
-            <!-- Copyright 2016 The MyBatis Team
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License. --><!-- version: $Id$ -->
-
-  
-    <div class="section">
-<h2><a name="MyBatis_Ignite_Integration_-_Reference_Documentation"></a>MyBatis Ignite Integration - Reference Documentation</h2>
-
-    
-<p><a class="externalLink" href="https://apacheignite.readme.io/">Apache Ignite</a> is a high-performance, integrated and distributed in-memory platform for computing and transacting on large-scale data sets in real-time, orders of magnitude faster than possible with traditional disk-based or flash technologies.</p>
-    
-<p>Users who want to use Apache Ignite in their applications as a 2nd level cache have to download the
-    <a class="externalLink" href="https://github.com/mybatis/ignite-cache/releases">zip bundle</a>, decompress it and add the jars in the classpath.
-    Apache Maven users instead can simply add in the <tt>pom.xml</tt> the following dependency:</p>
-    
-<div class="source"><pre class="prettyprint">&lt;dependencies&gt;
-  ...
-  &lt;dependency&gt;
-    &lt;groupId&gt;org.mybatis.caches&lt;/groupId&gt;
-    &lt;artifactId&gt;mybatis-ignite&lt;/artifactId&gt;
-    &lt;version&gt;1.0.0-SNAPSHOT&lt;/version&gt;
-  &lt;/dependency&gt;
-  ...
-&lt;/dependencies&gt;</pre></div>
-            
-<p>then, just configure it in the mapper XML</p>
-            
-<div class="source"><pre class="prettyprint">&lt;mapper namespace=&quot;org.acme.FooMapper&quot;&gt;
-  &lt;cache type=&quot;org.mybatis.caches.ignite.IgniteCacheAdapter&quot; /&gt;
-  ...
-&lt;/mapper&gt;</pre></div>
-
-  
-<p>The Ignite cache is configurable in <tt>config/default-config.xml</tt> (Simple reference configurations are available <a class="externalLink" href="https://github.com/mybatis/ignite-cache/config">here</a>.)
-  If not found, the cache is started with default settings.</p>
-  
-  
-<p>For more details, please see <a class="externalLink" href="https://apacheignite.readme.io/">Apache Ignite docs</a> or ask in <a class="externalLink" href="http://apache-ignite-users.70518.x6.nabble.com/">the mailing list</a>.</p>
-
-        </div>
-    
-
-
+            <div class="section">
+<h2><a name="Project_Summary"></a>Project Summary</h2><a name="Project_Summary"></a>
+<div class="section">
+<h3><a name="Project_Information"></a>Project Information</h3><a name="Project_Information"></a>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>Field</th>
+<th>Value</th></tr>
+<tr class="b">
+<td>Name</td>
+<td>mybatis-ignite</td></tr>
+<tr class="a">
+<td>Description</td>
+<td>ignite support for MyBatis Cache</td></tr>
+<tr class="b">
+<td>Homepage</td>
+<td><a class="externalLink" href="https://github.com/mybatis/ignite-cache">https://github.com/mybatis/ignite-cache</a></td></tr></table></div>
+<div class="section">
+<h3><a name="Project_Organization"></a>Project Organization</h3><a name="Project_Organization"></a>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>Field</th>
+<th>Value</th></tr>
+<tr class="b">
+<td>Name</td>
+<td>MyBatis.org</td></tr>
+<tr class="a">
+<td>URL</td>
+<td><a class="externalLink" href="http://www.mybatis.org/">http://www.mybatis.org/</a></td></tr></table></div>
+<div class="section">
+<h3><a name="Build_Information"></a>Build Information</h3><a name="Build_Information"></a>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>Field</th>
+<th>Value</th></tr>
+<tr class="b">
+<td>GroupId</td>
+<td>org.mybatis.caches</td></tr>
+<tr class="a">
+<td>ArtifactId</td>
+<td>mybatis-ignite</td></tr>
+<tr class="b">
+<td>Version</td>
+<td>1.0.0-SNAPSHOT</td></tr>
+<tr class="a">
+<td>Type</td>
+<td>jar</td></tr>
+<tr class="b">
+<td>Java Version</td>
+<td>1.7</td></tr></table></div></div>
                   </div>
             </div>
           </div>
