@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -15,11 +15,14 @@ package org.mybatis.caches.ignite;
 import java.io.File;
 import java.util.concurrent.locks.ReadWriteLock;
 import org.apache.ibatis.cache.Cache;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CachePeekMode;
 import org.apache.ignite.configuration.CacheConfiguration;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -32,6 +35,9 @@ import org.springframework.core.io.FileSystemResource;
  * @author Roman Shtykh
  */
 public final class IgniteCacheAdapter implements Cache {
+    /** Logger. */
+    private static final Log log = LogFactory.getLog(IgniteCacheAdapter.class);
+
     /** Cache id. */
     private final String id;
 
@@ -53,21 +59,24 @@ public final class IgniteCacheAdapter implements Cache {
         if (id == null)
             throw new IllegalArgumentException("Cache instances require an ID");
 
-        DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
-
-        new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(
-            new File("config/default-config.xml")));
-
         CacheConfiguration cacheCfg = null;
 
         try {
+            DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+
+            new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(
+                new File("config/default-config.xml")));
+
             cacheCfg = (CacheConfiguration)factory.getBean("templateCacheCfg");
 
             // overrides template cache name with the specified id.
             cacheCfg.setName(id);
         }
-        catch (NoSuchBeanDefinitionException e) {
+        catch (NoSuchBeanDefinitionException | BeanDefinitionStoreException e) {
             // initializes the default cache.
+            log.warn("Initializing the default cache. " +
+                "Consider properly configuring 'config/default-config.xml' instead.");
+
             cacheCfg = new CacheConfiguration(id);
         }
 
