@@ -42,14 +42,13 @@
   </dependency>
   ...
 </dependencies>]]></source>
-            <p>then, just configure it in the mapper XML</p>
+            <p>then, configure it in the mapper XML</p>
             <source><![CDATA[<mapper namespace="org.acme.FooMapper">
   <cache type="org.mybatis.caches.ignite.IgniteCacheAdapter" />
-  ...
 </mapper>]]></source>
 
-  <p>The Ignite cache is configurable in <code>config/default-config.xml</code> (Simple reference configurations are available <a href="https://github.com/mybatis/ignite-cache/tree/master/config">here</a>.)
-  If not found, the cache is started with default settings.</p>
+  <p>and configure your Ignite cache in <code>config/default-config.xml</code> by specifying the properties of <code>"templateCacheCfg"</code> bean (Basic reference configurations are available <a href="https://github.com/mybatis/ignite-cache/tree/master/config">here</a>.)
+  If <code>config/default-config.xml</code> is not available, the cache is started with the default settings.</p>
   
   <p>For more details, please see <a href="https://apacheignite.readme.io/">Apache Ignite docs</a> or ask in <a href="http://apache-ignite-users.70518.x6.nabble.com/">the mailing list</a>.</p>
 
