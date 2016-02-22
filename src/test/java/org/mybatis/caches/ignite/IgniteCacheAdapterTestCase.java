@@ -38,11 +38,12 @@ public final class IgniteCacheAdapterTestCase {
     }
 
     @Test
-    public void shouldDemonstrateCopiesAreEqual() {
+    public void shouldDemonstrateCopiesAreKeptAndEqual() {
         for (int i = 0; i < 1000; i++) {
             cache.putObject(i, i);
             assertEquals(i, cache.getObject(i));
         }
+        assertEquals(1000, cache.getSize());
     }
 
     @Test
@@ -68,5 +69,10 @@ public final class IgniteCacheAdapterTestCase {
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotCreateCache() {
         cache = new IgniteCacheAdapter(null);
+    }
+
+    @Test
+    public void shouldVerifyCacheId() {
+        assertEquals("Ignite", cache.getId());
     }
 }
