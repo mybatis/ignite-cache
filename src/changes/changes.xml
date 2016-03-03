@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2014 The original author or authors.
+  Copyright 2016 The original author or authors.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -27,9 +27,9 @@
   </properties>
 
   <body>
-    <release version="1.0.0-RC1" date="TBD" description="1.0.0-RC1 release">
-      <action dev="simone.tripodi" type="update">
-        First release canidate.
+    <release version="1.0.0-beta1" date="2016/02/10" description="1.0.0-beta1 release">
+      <action dev="" type="update">
+        Beta version.
       </action>
     </release>
   </body>
