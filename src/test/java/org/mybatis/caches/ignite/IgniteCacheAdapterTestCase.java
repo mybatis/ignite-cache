@@ -33,6 +33,8 @@ public final class IgniteCacheAdapterTestCase {
 
     private static IgniteCacheAdapter cache;
 
+    private static int TEST_OBJ_NUM = 1000;
+
     @BeforeClass
     public static void newCache() {
         cache = new IgniteCacheAdapter(DEFAULT_ID);
@@ -40,11 +42,11 @@ public final class IgniteCacheAdapterTestCase {
 
     @Test
     public void shouldDemonstrateCopiesAreKeptAndEqual() {
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < TEST_OBJ_NUM; i++) {
             cache.putObject(i, i);
             assertEquals(i, cache.getObject(i));
         }
-        assertEquals(1000, cache.getSize());
+        assertEquals(TEST_OBJ_NUM, cache.getSize());
     }
 
     @Test
@@ -57,14 +59,16 @@ public final class IgniteCacheAdapterTestCase {
 
     @Test
     public void shouldFlushAllItemsOnDemand() {
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < TEST_OBJ_NUM; i++) {
             cache.putObject(i, i);
         }
-        assertNotNull(cache.getObject(0));
-        assertNotNull(cache.getObject(4));
+        for (int i = 0; i < TEST_OBJ_NUM; i++) {
+            assertNotNull(cache.getObject(i));
+        }
         cache.clear();
-        assertNull(cache.getObject(0));
-        assertNull(cache.getObject(4));
+        for (int i = 0; i < TEST_OBJ_NUM; i++) {
+            assertNull(cache.getObject(i));
+        }
     }
 
     @Test(expected = IllegalArgumentException.class)
