@@ -1,17 +1,17 @@
 /**
- * Copyright 2016 the original author or authors.
+ *    Copyright 2016 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package org.mybatis.caches.ignite;
 
@@ -32,110 +32,110 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
 
 /**
- * Cache adapter for Ignite.
- * Cache is initialized from IGNITE_HOME/config/default-config.xml settings, otherwise default one is started.
+ * Cache adapter for Ignite. Cache is initialized from IGNITE_HOME/config/default-config.xml settings, otherwise default
+ * one is started.
  *
  * @author Roman Shtykh
  */
 public final class IgniteCacheAdapter implements Cache {
-    /** Logger. */
-    private static final Log log = LogFactory.getLog(IgniteCacheAdapter.class);
+  /** Logger. */
+  private static final Log log = LogFactory.getLog(IgniteCacheAdapter.class);
 
-    /** Cache id. */
-    private final String id;
+  /** Cache id. */
+  private final String id;
 
-    /** {@code ReadWriteLock}. */
-    private final ReadWriteLock readWriteLock = new DummyReadWriteLock();
+  /** {@code ReadWriteLock}. */
+  private final ReadWriteLock readWriteLock = new DummyReadWriteLock();
 
-    /** Grid instance. */
-    private static final Ignite ignite = Ignition.start();
+  /** Grid instance. */
+  private static final Ignite ignite = Ignition.start();
 
-    /** Cache. */
-    private final IgniteCache cache;
+  /** Cache. */
+  private final IgniteCache cache;
 
-    /** Ignite configuration file path. */
-    private static final String cfgPath = "config/default-config.xml";
+  /** Ignite configuration file path. */
+  private static final String cfgPath = "config/default-config.xml";
 
-    /**
-     * Constructor.
-     *
-     * @param id Cache id.
-     */
-    @SuppressWarnings("unchecked")
-    public IgniteCacheAdapter(String id) {
-        if (id == null)
-            throw new IllegalArgumentException("Cache instances require an ID");
+  /**
+   * Constructor.
+   *
+   * @param id
+   *          Cache id.
+   */
+  @SuppressWarnings("unchecked")
+  public IgniteCacheAdapter(String id) {
+    if (id == null)
+      throw new IllegalArgumentException("Cache instances require an ID");
 
-        CacheConfiguration cacheCfg = null;
+    CacheConfiguration cacheCfg = null;
 
-        try {
-            DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+    try {
+      DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
 
-            new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(new File(cfgPath)));
+      new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(new File(cfgPath)));
 
-            cacheCfg = (CacheConfiguration)factory.getBean("templateCacheCfg");
+      cacheCfg = (CacheConfiguration) factory.getBean("templateCacheCfg");
 
-            cacheCfg.setEvictionPolicy(null);
-            cacheCfg.setCacheLoaderFactory(null);
-            cacheCfg.setCacheWriterFactory(null);
+      cacheCfg.setEvictionPolicy(null);
+      cacheCfg.setCacheLoaderFactory(null);
+      cacheCfg.setCacheWriterFactory(null);
 
-            // overrides template cache name with the specified id.
-            cacheCfg.setName(id);
-        }
-        catch (NoSuchBeanDefinitionException | BeanDefinitionStoreException e) {
-            // initializes the default cache.
-            log.warn("Initializing the default cache. Consider properly configuring '" + cfgPath + "' instead.");
+      // overrides template cache name with the specified id.
+      cacheCfg.setName(id);
+    } catch (NoSuchBeanDefinitionException | BeanDefinitionStoreException e) {
+      // initializes the default cache.
+      log.warn("Initializing the default cache. Consider properly configuring '" + cfgPath + "' instead.");
 
-            cacheCfg = new CacheConfiguration(id);
-        }
-
-        cache = ignite.getOrCreateCache(cacheCfg);
-
-        this.id = id;
+      cacheCfg = new CacheConfiguration(id);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String getId() {
-        return this.id;
-    }
+    cache = ignite.getOrCreateCache(cacheCfg);
 
-    /** {@inheritDoc} */
-    @Override
-    @SuppressWarnings("unchecked")
-    public void putObject(Object key, Object value) {
-        cache.put(key, value);
-    }
+    this.id = id;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    @SuppressWarnings("unchecked")
-    public Object getObject(Object key) {
-        return cache.get(key);
-    }
+  /** {@inheritDoc} */
+  @Override
+  public String getId() {
+    return this.id;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    @SuppressWarnings("unchecked")
-    public Object removeObject(Object key) {
-        return cache.remove(key);
-    }
+  /** {@inheritDoc} */
+  @Override
+  @SuppressWarnings("unchecked")
+  public void putObject(Object key, Object value) {
+    cache.put(key, value);
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public void clear() {
-        cache.clear();
-    }
+  /** {@inheritDoc} */
+  @Override
+  @SuppressWarnings("unchecked")
+  public Object getObject(Object key) {
+    return cache.get(key);
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public int getSize() {
-        return cache.size(CachePeekMode.PRIMARY);
-    }
+  /** {@inheritDoc} */
+  @Override
+  @SuppressWarnings("unchecked")
+  public Object removeObject(Object key) {
+    return cache.remove(key);
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public ReadWriteLock getReadWriteLock() {
-        return readWriteLock;
-    }
+  /** {@inheritDoc} */
+  @Override
+  public void clear() {
+    cache.clear();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public int getSize() {
+    return cache.size(CachePeekMode.PRIMARY);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public ReadWriteLock getReadWriteLock() {
+    return readWriteLock;
+  }
 }
