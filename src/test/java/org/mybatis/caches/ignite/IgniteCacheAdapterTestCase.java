@@ -25,8 +25,6 @@ import static org.junit.Assert.assertNull;
 
 /**
  * Ignite Test Case.
- *
- * @version $Id$
  */
 public final class IgniteCacheAdapterTestCase {
   private static final String DEFAULT_ID = "Ignite";
