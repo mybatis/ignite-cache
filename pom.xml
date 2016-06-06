@@ -16,14 +16,15 @@
        limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis-parent</artifactId>
         <version>28-SNAPSHOT</version>
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <groupId>org.mybatis.caches</groupId>
@@ -32,7 +33,7 @@
     <packaging>jar</packaging>
 
     <name>mybatis-ignite</name>
-    <description>ignite support for MyBatis Cache</description>
+    <description>Ignite support for MyBatis Cache</description>
     <url>https://github.com/mybatis/ignite-cache</url>
 
     <inceptionYear>2016</inceptionYear>
@@ -63,7 +64,7 @@
         <clirr.comparisonVersion>1.0.0</clirr.comparisonVersion>
         <findbugs.onlyAnalyze>org.mybatis.caches.ignite.*</findbugs.onlyAnalyze>
         <gcu.product>Cache</gcu.product>
-        <ignite.version>1.5.0.final</ignite.version>
+        <ignite.version>1.6.0</ignite.version>
 
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
