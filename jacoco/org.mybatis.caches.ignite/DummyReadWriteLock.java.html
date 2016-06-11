@@ -20,55 +20,55 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
-/**
+<span class="fc" id="L23">/**</span>
  * @author Iwao AVE!
- */
-<span class="fc" id="L26">class DummyReadWriteLock implements ReadWriteLock {</span>
+<span class="fc" id="L25"> */</span>
+class DummyReadWriteLock implements ReadWriteLock {
 
-<span class="fc" id="L28">    private Lock lock = new DummyLock();</span>
+  private Lock lock = new DummyLock();
+<span class="nc" id="L29"></span>
+  @Override
+  public Lock readLock() {
+    return lock;
+  }
+<span class="nc" id="L34"></span>
+  @Override
+  public Lock writeLock() {
+<span class="fc" id="L37">    return lock;</span>
+  }
 
+  static class DummyLock implements Lock {
+
+<span class="nc" id="L42">    @Override</span>
+    public void lock() {
+      // Not implemented
+    }
+
+<span class="nc" id="L47">    @Override</span>
+    public void lockInterruptibly() throws InterruptedException {
+      // Not implemented
+    }
+<span class="nc" id="L51"></span>
     @Override
-    public Lock readLock() {
-<span class="nc" id="L32">        return lock;</span>
+    public boolean tryLock() {
+      return true;
     }
-
+<span class="nc" id="L56"></span>
     @Override
-    public Lock writeLock() {
-<span class="nc" id="L37">        return lock;</span>
+    public boolean tryLock(long paramLong, TimeUnit paramTimeUnit) throws InterruptedException {
+      return true;
     }
 
-<span class="fc" id="L40">    static class DummyLock implements Lock {</span>
-
-        @Override
-        public void lock() {
-            // Not implemented
-<span class="nc" id="L45">        }</span>
-
-        @Override
-        public void lockInterruptibly() throws InterruptedException {
-            // Not implemented
-<span class="nc" id="L50">        }</span>
-
-        @Override
-        public boolean tryLock() {
-<span class="nc" id="L54">            return true;</span>
-        }
-
-        @Override
-        public boolean tryLock(long paramLong, TimeUnit paramTimeUnit) throws InterruptedException {
-<span class="nc" id="L59">            return true;</span>
-        }
-
-        @Override
-        public void unlock() {
-           // Not implemented
-<span class="nc" id="L65">        }</span>
-
-        @Override
-        public Condition newCondition() {
-<span class="nc" id="L69">            return null;</span>
-        }
+<span class="nc" id="L62">    @Override</span>
+    public void unlock() {
+      // Not implemented
     }
+<span class="nc" id="L66"></span>
+    @Override
+    public Condition newCondition() {
+      return null;
+    }
+  }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>
