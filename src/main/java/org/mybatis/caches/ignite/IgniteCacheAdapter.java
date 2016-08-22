@@ -22,6 +22,7 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
+import org.apache.ignite.IgniteIllegalStateException;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CachePeekMode;
 import org.apache.ignite.configuration.CacheConfiguration;
@@ -48,13 +49,27 @@ public final class IgniteCacheAdapter implements Cache {
   private final ReadWriteLock readWriteLock = new DummyReadWriteLock();
 
   /** Grid instance. */
-  private static final Ignite ignite = Ignition.start();
+  private static final Ignite ignite;
 
   /** Cache. */
   private final IgniteCache cache;
 
   /** Ignite configuration file path. */
   private static final String cfgPath = "config/default-config.xml";
+
+  static {
+    boolean started = false;
+    try {
+      Ignition.ignite();
+      started = true;
+    } catch (IgniteIllegalStateException e) {
+      log.debug("Using the Ignite instance that has been already started.");
+    }
+    if (started)
+      ignite = Ignition.ignite();
+    else
+      ignite = Ignition.start();
+  }
 
   /**
    * Constructor.
