@@ -22,6 +22,7 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
+import org.apache.ignite.IgniteIllegalStateException;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CachePeekMode;
 import org.apache.ignite.configuration.CacheConfiguration;
@@ -36,104 +37,118 @@ import org.springframework.core.io.FileSystemResource;
  * one is started.
  *
  * @author Roman Shtykh
-<span class="fc" id="L39"> */</span>
+<span class="fc" id="L40"> */</span>
 public final class IgniteCacheAdapter implements Cache {
   /** Logger. */
   private static final Log log = LogFactory.getLog(IgniteCacheAdapter.class);
 
   /** Cache id. */
-<span class="fc" id="L45">  private final String id;</span>
+<span class="fc" id="L46">  private final String id;</span>
 
   /** {@code ReadWriteLock}. */
-<span class="fc" id="L48">  private final ReadWriteLock readWriteLock = new DummyReadWriteLock();</span>
+  private final ReadWriteLock readWriteLock = new DummyReadWriteLock();
 
   /** Grid instance. */
-  private static final Ignite ignite = Ignition.start();
+  private static final Ignite ignite;
 
   /** Cache. */
   private final IgniteCache cache;
 
   /** Ignite configuration file path. */
-  private static final String cfgPath = &quot;config/default-config.xml&quot;;
+<span class="fc" id="L58">  private static final String cfgPath = &quot;config/default-config.xml&quot;;</span>
+
+<span class="nc" id="L60">  static {</span>
+<span class="nc" id="L61">    boolean started = false;</span>
+<span class="fc" id="L62">    try {</span>
+<span class="fc" id="L63">      Ignition.ignite();</span>
+<span class="nc" id="L64">      started = true;</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">    } catch (IgniteIllegalStateException e) {</span>
+<span class="nc" id="L66">      log.debug(&quot;Using the Ignite instance that has been already started.&quot;);</span>
+    }
+<span class="fc" id="L68">    if (started)</span>
+<span class="fc" id="L69">      ignite = Ignition.ignite();</span>
+    else
+      ignite = Ignition.start();
+  }
 
   /**
    * Constructor.
    *
    * @param id
-<span class="fc" id="L63">   *          Cache id.</span>
-<span class="fc bfc" id="L64" title="All 2 branches covered.">   */</span>
-<span class="fc" id="L65">  @SuppressWarnings(&quot;unchecked&quot;)</span>
+<span class="fc" id="L78">   *          Cache id.</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">   */</span>
+<span class="fc" id="L80">  @SuppressWarnings(&quot;unchecked&quot;)</span>
   public IgniteCacheAdapter(String id) {
-<span class="fc" id="L67">    if (id == null)</span>
+<span class="fc" id="L82">    if (id == null)</span>
       throw new IllegalArgumentException(&quot;Cache instances require an ID&quot;);
 
-<span class="fc" id="L70">    CacheConfiguration cacheCfg = null;</span>
+<span class="fc" id="L85">    CacheConfiguration cacheCfg = null;</span>
 
-<span class="fc" id="L72">    try {</span>
+<span class="fc" id="L87">    try {</span>
       DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
-<span class="fc" id="L74"></span>
+<span class="fc" id="L89"></span>
       new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(new File(cfgPath)));
-<span class="fc" id="L76"></span>
-<span class="fc" id="L77">      cacheCfg = (CacheConfiguration) factory.getBean(&quot;templateCacheCfg&quot;);</span>
-<span class="fc" id="L78"></span>
+<span class="fc" id="L91"></span>
+<span class="fc" id="L92">      cacheCfg = (CacheConfiguration) factory.getBean(&quot;templateCacheCfg&quot;);</span>
+<span class="fc" id="L93"></span>
       cacheCfg.setEvictionPolicy(null);
       cacheCfg.setCacheLoaderFactory(null);
-<span class="fc" id="L81">      cacheCfg.setCacheWriterFactory(null);</span>
-<span class="fc" id="L82"></span>
+<span class="fc" id="L96">      cacheCfg.setCacheWriterFactory(null);</span>
+<span class="fc" id="L97"></span>
       // overrides template cache name with the specified id.
-<span class="fc" id="L84">      cacheCfg.setName(id);</span>
+<span class="fc" id="L99">      cacheCfg.setName(id);</span>
     } catch (NoSuchBeanDefinitionException | BeanDefinitionStoreException e) {
-<span class="fc" id="L86">      // initializes the default cache.</span>
-<span class="fc" id="L87">      log.warn(&quot;Initializing the default cache. Consider properly configuring '&quot; + cfgPath + &quot;' instead.&quot;);</span>
+<span class="fc" id="L101">      // initializes the default cache.</span>
+<span class="fc" id="L102">      log.warn(&quot;Initializing the default cache. Consider properly configuring '&quot; + cfgPath + &quot;' instead.&quot;);</span>
 
-<span class="fc" id="L89">      cacheCfg = new CacheConfiguration(id);</span>
+<span class="fc" id="L104">      cacheCfg = new CacheConfiguration(id);</span>
     }
-<span class="fc" id="L91"></span>
-<span class="fc" id="L92">    cache = ignite.getOrCreateCache(cacheCfg);</span>
+<span class="fc" id="L106"></span>
+<span class="fc" id="L107">    cache = ignite.getOrCreateCache(cacheCfg);</span>
 
     this.id = id;
   }
 
-<span class="fc" id="L97">  /** {@inheritDoc} */</span>
+<span class="fc" id="L112">  /** {@inheritDoc} */</span>
   @Override
   public String getId() {
     return this.id;
   }
 
   /** {@inheritDoc} */
-<span class="fc" id="L104">  @Override</span>
-<span class="fc" id="L105">  @SuppressWarnings(&quot;unchecked&quot;)</span>
+<span class="fc" id="L119">  @Override</span>
+<span class="fc" id="L120">  @SuppressWarnings(&quot;unchecked&quot;)</span>
   public void putObject(Object key, Object value) {
     cache.put(key, value);
   }
 
   /** {@inheritDoc} */
-<span class="fc" id="L111">  @Override</span>
+<span class="fc" id="L126">  @Override</span>
   @SuppressWarnings(&quot;unchecked&quot;)
   public Object getObject(Object key) {
     return cache.get(key);
   }
 
   /** {@inheritDoc} */
-<span class="fc" id="L118">  @Override</span>
+<span class="fc" id="L133">  @Override</span>
   @SuppressWarnings(&quot;unchecked&quot;)
   public Object removeObject(Object key) {
     return cache.remove(key);
   }
 
-<span class="fc" id="L124">  /** {@inheritDoc} */</span>
-<span class="fc" id="L125">  @Override</span>
+<span class="fc" id="L139">  /** {@inheritDoc} */</span>
+<span class="fc" id="L140">  @Override</span>
   public void clear() {
     cache.clear();
   }
 
-<span class="fc" id="L130">  /** {@inheritDoc} */</span>
+<span class="fc" id="L145">  /** {@inheritDoc} */</span>
   @Override
   public int getSize() {
     return cache.size(CachePeekMode.PRIMARY);
   }
 
-<span class="nc" id="L136">  /** {@inheritDoc} */</span>
+<span class="nc" id="L151">  /** {@inheritDoc} */</span>
   @Override
   public ReadWriteLock getReadWriteLock() {
     return readWriteLock;

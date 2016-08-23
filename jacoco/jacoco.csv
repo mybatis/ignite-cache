@@ -1,4 +1,4 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 mybatis-ignite,org.mybatis.caches.ignite,DummyReadWriteLock,6,8,0,0,2,2,2,1,2,1
-mybatis-ignite,org.mybatis.caches.ignite,IgniteCacheAdapter,3,113,0,2,1,29,1,9,1,8
+mybatis-ignite,org.mybatis.caches.ignite,IgniteCacheAdapter,11,121,1,3,5,34,2,9,1,8
 mybatis-ignite,org.mybatis.caches.ignite,DummyReadWriteLock.DummyLock,9,3,0,0,6,1,6,1,6,1
