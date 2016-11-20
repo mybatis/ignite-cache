@@ -55,7 +55,7 @@ public final class IgniteCacheAdapter implements Cache {
   private final IgniteCache cache;
 
   /** Ignite configuration file path. */
-  private static final String cfgPath = "config/default-config.xml";
+  private static final String CFG_PATH = "config/default-config.xml";
 
   static {
     boolean started = false;
@@ -87,7 +87,7 @@ public final class IgniteCacheAdapter implements Cache {
     try {
       DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
 
-      new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(new File(cfgPath)));
+      new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(new File(CFG_PATH)));
 
       cacheCfg = (CacheConfiguration) factory.getBean("templateCacheCfg");
 
@@ -99,7 +99,7 @@ public final class IgniteCacheAdapter implements Cache {
       cacheCfg.setName(id);
     } catch (NoSuchBeanDefinitionException | BeanDefinitionStoreException e) {
       // initializes the default cache.
-      log.warn("Initializing the default cache. Consider properly configuring '" + cfgPath + "' instead.");
+      log.warn("Initializing the default cache. Consider properly configuring '" + CFG_PATH + "' instead.");
 
       cacheCfg = new CacheConfiguration(id);
     }
