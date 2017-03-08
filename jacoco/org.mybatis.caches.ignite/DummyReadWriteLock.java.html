@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DummyReadWriteLock.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mybatis-ignite</a> &gt; <a href="index.source.html" class="el_package">org.mybatis.caches.ignite</a> &gt; <span class="el_source">DummyReadWriteLock.java</span></div><h1>DummyReadWriteLock.java</h1><pre class="source lang-java linenums">/**
- *    Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
- *    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package org.mybatis.caches.ignite;
 
@@ -20,53 +17,53 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
-<span class="fc" id="L23">/**</span>
+/**
  * @author Iwao AVE!
-<span class="fc" id="L25"> */</span>
-class DummyReadWriteLock implements ReadWriteLock {
+ */
+<span class="fc" id="L23">class DummyReadWriteLock implements ReadWriteLock {</span>
 
-  private Lock lock = new DummyLock();
-<span class="nc" id="L29"></span>
+<span class="fc" id="L25">  private Lock lock = new DummyLock();</span>
+
   @Override
   public Lock readLock() {
-    return lock;
+<span class="nc" id="L29">    return lock;</span>
   }
-<span class="nc" id="L34"></span>
+
   @Override
   public Lock writeLock() {
-<span class="fc" id="L37">    return lock;</span>
+<span class="nc" id="L34">    return lock;</span>
   }
 
-  static class DummyLock implements Lock {
+<span class="fc" id="L37">  static class DummyLock implements Lock {</span>
 
-<span class="nc" id="L42">    @Override</span>
+    @Override
     public void lock() {
       // Not implemented
-    }
+<span class="nc" id="L42">    }</span>
 
-<span class="nc" id="L47">    @Override</span>
+    @Override
     public void lockInterruptibly() throws InterruptedException {
       // Not implemented
-    }
-<span class="nc" id="L51"></span>
+<span class="nc" id="L47">    }</span>
+
     @Override
     public boolean tryLock() {
-      return true;
-    }
-<span class="nc" id="L56"></span>
-    @Override
-    public boolean tryLock(long paramLong, TimeUnit paramTimeUnit) throws InterruptedException {
-      return true;
+<span class="nc" id="L51">      return true;</span>
     }
 
-<span class="nc" id="L62">    @Override</span>
+    @Override
+    public boolean tryLock(long paramLong, TimeUnit paramTimeUnit) throws InterruptedException {
+<span class="nc" id="L56">      return true;</span>
+    }
+
+    @Override
     public void unlock() {
       // Not implemented
-    }
-<span class="nc" id="L66"></span>
+<span class="nc" id="L62">    }</span>
+
     @Override
     public Condition newCondition() {
-      return null;
+<span class="nc" id="L66">      return null;</span>
     }
   }
 
