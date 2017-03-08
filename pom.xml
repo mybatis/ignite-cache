@@ -64,7 +64,7 @@
         <clirr.comparisonVersion>1.0.3</clirr.comparisonVersion>
         <findbugs.onlyAnalyze>org.mybatis.caches.ignite.*</findbugs.onlyAnalyze>
         <gcu.product>Cache</gcu.product>
-        <ignite.version>1.8.0</ignite.version>
+        <ignite.version>1.9.0</ignite.version>
 
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
