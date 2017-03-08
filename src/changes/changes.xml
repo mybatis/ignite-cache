@@ -25,6 +25,11 @@
   </properties>
 
   <body>
+    <release version="1.0.4" date="2017/03/08" description="1.0.4 release">
+      <action dev="" type="update">
+        Ignite 1.9.0.
+      </action>
+    </release>
     <release version="1.0.3" date="2016/12/14" description="1.0.3 release">
       <action dev="" type="update">
         Ignite 1.8.0.
