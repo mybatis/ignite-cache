@@ -1,11 +1,11 @@
 @REM
-@REM    Copyright 2015-2016 the original author or authors.
+@REM    Copyright 2016-2017 the original author or authors.
 @REM
 @REM    Licensed under the Apache License, Version 2.0 (the "License");
 @REM    you may not use this file except in compliance with the License.
 @REM    You may obtain a copy of the License at
 @REM
-@REM       https://www.apache.org/licenses/LICENSE-2.0
+@REM       http://www.apache.org/licenses/LICENSE-2.0
 @REM
 @REM    Unless required by applicable law or agreed to in writing, software
 @REM    distributed under the License is distributed on an "AS IS" BASIS,
