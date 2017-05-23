@@ -17,4 +17,3 @@
  * Contains Ignite support for MyBatis Cache.
  */
 package org.mybatis.caches.ignite;
-
