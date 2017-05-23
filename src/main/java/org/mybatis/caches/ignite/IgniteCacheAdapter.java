@@ -33,26 +33,30 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
 
 /**
- * Cache adapter for Ignite. Cache is initialized from IGNITE_HOME/config/default-config.xml settings, otherwise default
- * one is started.
+ * Cache adapter for Ignite. Cache is initialized from
+ * IGNITE_HOME/config/default-config.xml settings,
+ * otherwise default one is started.
  *
  * @author Roman Shtykh
  */
 public final class IgniteCacheAdapter implements Cache {
+
   /** Logger. */
   private static final Log log = LogFactory.getLog(IgniteCacheAdapter.class);
 
   /** Cache id. */
   private final String id;
 
-  /** {@code ReadWriteLock}. */
+  /**
+   * {@code ReadWriteLock}.
+   */
   private final ReadWriteLock readWriteLock = new DummyReadWriteLock();
 
   /** Grid instance. */
   private static final Ignite ignite;
 
   /** Cache. */
-  private final IgniteCache cache;
+  private final IgniteCache<Object, Object> cache;
 
   /** Ignite configuration file path. */
   private static final String CFG_PATH = "config/default-config.xml";
@@ -64,11 +68,13 @@ public final class IgniteCacheAdapter implements Cache {
       started = true;
     } catch (IgniteIllegalStateException e) {
       log.debug("Using the Ignite instance that has been already started.");
+      log.trace("" + e);
     }
-    if (started)
+    if (started) {
       ignite = Ignition.ignite();
-    else
+    } else {
       ignite = Ignition.start();
+    }
   }
 
   /**
@@ -79,17 +85,18 @@ public final class IgniteCacheAdapter implements Cache {
    */
   @SuppressWarnings("unchecked")
   public IgniteCacheAdapter(String id) {
-    if (id == null)
+    if (id == null) {
       throw new IllegalArgumentException("Cache instances require an ID");
+    }
 
-    CacheConfiguration cacheCfg = null;
+    CacheConfiguration<Object, Object> cacheCfg = null;
 
     try {
       DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
 
       new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(new File(CFG_PATH)));
 
-      cacheCfg = (CacheConfiguration) factory.getBean("templateCacheCfg");
+      cacheCfg = (CacheConfiguration<Object, Object>) factory.getBean("templateCacheCfg");
 
       cacheCfg.setEvictionPolicy(null);
       cacheCfg.setCacheLoaderFactory(null);
@@ -100,8 +107,9 @@ public final class IgniteCacheAdapter implements Cache {
     } catch (NoSuchBeanDefinitionException | BeanDefinitionStoreException e) {
       // initializes the default cache.
       log.warn("Initializing the default cache. Consider properly configuring '" + CFG_PATH + "' instead.");
+      log.trace("" + e);
 
-      cacheCfg = new CacheConfiguration(id);
+      cacheCfg = new CacheConfiguration<>(id);
     }
 
     cache = ignite.getOrCreateCache(cacheCfg);
@@ -109,46 +117,36 @@ public final class IgniteCacheAdapter implements Cache {
     this.id = id;
   }
 
-  /** {@inheritDoc} */
   @Override
   public String getId() {
     return this.id;
   }
 
-  /** {@inheritDoc} */
   @Override
-  @SuppressWarnings("unchecked")
   public void putObject(Object key, Object value) {
     cache.put(key, value);
   }
 
-  /** {@inheritDoc} */
   @Override
-  @SuppressWarnings("unchecked")
   public Object getObject(Object key) {
     return cache.get(key);
   }
 
-  /** {@inheritDoc} */
   @Override
-  @SuppressWarnings("unchecked")
   public Object removeObject(Object key) {
     return cache.remove(key);
   }
 
-  /** {@inheritDoc} */
   @Override
   public void clear() {
     cache.clear();
   }
 
-  /** {@inheritDoc} */
   @Override
   public int getSize() {
     return cache.size(CachePeekMode.PRIMARY);
   }
 
-  /** {@inheritDoc} */
   @Override
   public ReadWriteLock getReadWriteLock() {
     return readWriteLock;
