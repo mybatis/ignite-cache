@@ -25,6 +25,11 @@
   </properties>
 
   <body>
+    <release version="1.0.6" date="2016/08/21" description="1.0.6 release">
+      <action dev="" type="update">
+        Ignite 2.1.0 and MyBatis 3.4.5 updates.
+      </action>
+    </release>
     <release version="1.0.5" date="2017/05/15" description="1.0.5 release">
       <action dev="" type="update">
         Ignite 2.0.0.
