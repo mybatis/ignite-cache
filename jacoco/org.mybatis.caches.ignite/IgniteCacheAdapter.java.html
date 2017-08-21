@@ -30,43 +30,49 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
 
 /**
- * Cache adapter for Ignite. Cache is initialized from IGNITE_HOME/config/default-config.xml settings, otherwise default
- * one is started.
+ * Cache adapter for Ignite. Cache is initialized from
+ * IGNITE_HOME/config/default-config.xml settings,
+ * otherwise default one is started.
  *
  * @author Roman Shtykh
  */
 public final class IgniteCacheAdapter implements Cache {
+
   /** Logger. */
-<span class="fc" id="L40">  private static final Log log = LogFactory.getLog(IgniteCacheAdapter.class);</span>
+<span class="fc" id="L42">  private static final Log log = LogFactory.getLog(IgniteCacheAdapter.class);</span>
 
   /** Cache id. */
   private final String id;
 
-  /** {@code ReadWriteLock}. */
-<span class="fc" id="L46">  private final ReadWriteLock readWriteLock = new DummyReadWriteLock();</span>
+  /**
+   * {@code ReadWriteLock}.
+   */
+<span class="fc" id="L50">  private final ReadWriteLock readWriteLock = new DummyReadWriteLock();</span>
 
   /** Grid instance. */
   private static final Ignite ignite;
 
   /** Cache. */
-  private final IgniteCache cache;
+  private final IgniteCache&lt;Object, Object&gt; cache;
 
   /** Ignite configuration file path. */
   private static final String CFG_PATH = &quot;config/default-config.xml&quot;;
 
   static {
-<span class="fc" id="L58">    boolean started = false;</span>
+<span class="fc" id="L62">    boolean started = false;</span>
     try {
-<span class="nc" id="L60">      Ignition.ignite();</span>
-<span class="nc" id="L61">      started = true;</span>
-<span class="fc" id="L62">    } catch (IgniteIllegalStateException e) {</span>
-<span class="fc" id="L63">      log.debug(&quot;Using the Ignite instance that has been already started.&quot;);</span>
-<span class="nc" id="L64">    }</span>
-<span class="pc bpc" id="L65" title="1 of 2 branches missed.">    if (started)</span>
-<span class="nc" id="L66">      ignite = Ignition.ignite();</span>
-    else
-<span class="fc" id="L68">      ignite = Ignition.start();</span>
-<span class="fc" id="L69">  }</span>
+<span class="nc" id="L64">      Ignition.ignite();</span>
+<span class="nc" id="L65">      started = true;</span>
+<span class="fc" id="L66">    } catch (IgniteIllegalStateException e) {</span>
+<span class="fc" id="L67">      log.debug(&quot;Using the Ignite instance that has been already started.&quot;);</span>
+<span class="fc" id="L68">      log.trace(&quot;&quot; + e);</span>
+<span class="nc" id="L69">    }</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">    if (started) {</span>
+<span class="nc" id="L71">      ignite = Ignition.ignite();</span>
+    } else {
+<span class="fc" id="L73">      ignite = Ignition.start();</span>
+    }
+<span class="fc" id="L75">  }</span>
 
   /**
    * Constructor.
@@ -75,80 +81,72 @@ public final class IgniteCacheAdapter implements Cache {
    *          Cache id.
    */
   @SuppressWarnings(&quot;unchecked&quot;)
-<span class="fc" id="L78">  public IgniteCacheAdapter(String id) {</span>
-<span class="fc bfc" id="L79" title="All 2 branches covered.">    if (id == null)</span>
-<span class="fc" id="L80">      throw new IllegalArgumentException(&quot;Cache instances require an ID&quot;);</span>
+<span class="fc" id="L84">  public IgniteCacheAdapter(String id) {</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">    if (id == null) {</span>
+<span class="fc" id="L86">      throw new IllegalArgumentException(&quot;Cache instances require an ID&quot;);</span>
+    }
 
-<span class="fc" id="L82">    CacheConfiguration cacheCfg = null;</span>
+<span class="fc" id="L89">    CacheConfiguration&lt;Object, Object&gt; cacheCfg = null;</span>
 
     try {
-<span class="fc" id="L85">      DefaultListableBeanFactory factory = new DefaultListableBeanFactory();</span>
+<span class="fc" id="L92">      DefaultListableBeanFactory factory = new DefaultListableBeanFactory();</span>
 
-<span class="fc" id="L87">      new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(new File(CFG_PATH)));</span>
+<span class="fc" id="L94">      new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(new File(CFG_PATH)));</span>
 
-<span class="fc" id="L89">      cacheCfg = (CacheConfiguration) factory.getBean(&quot;templateCacheCfg&quot;);</span>
+<span class="fc" id="L96">      cacheCfg = (CacheConfiguration&lt;Object, Object&gt;) factory.getBean(&quot;templateCacheCfg&quot;);</span>
 
-<span class="fc" id="L91">      cacheCfg.setEvictionPolicy(null);</span>
-<span class="fc" id="L92">      cacheCfg.setCacheLoaderFactory(null);</span>
-<span class="fc" id="L93">      cacheCfg.setCacheWriterFactory(null);</span>
+<span class="fc" id="L98">      cacheCfg.setEvictionPolicy(null);</span>
+<span class="fc" id="L99">      cacheCfg.setCacheLoaderFactory(null);</span>
+<span class="fc" id="L100">      cacheCfg.setCacheWriterFactory(null);</span>
 
       // overrides template cache name with the specified id.
-<span class="fc" id="L96">      cacheCfg.setName(id);</span>
-<span class="fc" id="L97">    } catch (NoSuchBeanDefinitionException | BeanDefinitionStoreException e) {</span>
+<span class="fc" id="L103">      cacheCfg.setName(id);</span>
+<span class="fc" id="L104">    } catch (NoSuchBeanDefinitionException | BeanDefinitionStoreException e) {</span>
       // initializes the default cache.
-<span class="fc" id="L99">      log.warn(&quot;Initializing the default cache. Consider properly configuring '&quot; + CFG_PATH + &quot;' instead.&quot;);</span>
+<span class="fc" id="L106">      log.warn(&quot;Initializing the default cache. Consider properly configuring '&quot; + CFG_PATH + &quot;' instead.&quot;);</span>
+<span class="fc" id="L107">      log.trace(&quot;&quot; + e);</span>
 
-<span class="fc" id="L101">      cacheCfg = new CacheConfiguration(id);</span>
-<span class="fc" id="L102">    }</span>
+<span class="fc" id="L109">      cacheCfg = new CacheConfiguration&lt;&gt;(id);</span>
+<span class="fc" id="L110">    }</span>
 
-<span class="fc" id="L104">    cache = ignite.getOrCreateCache(cacheCfg);</span>
+<span class="fc" id="L112">    cache = ignite.getOrCreateCache(cacheCfg);</span>
 
-<span class="fc" id="L106">    this.id = id;</span>
-<span class="fc" id="L107">  }</span>
+<span class="fc" id="L114">    this.id = id;</span>
+<span class="fc" id="L115">  }</span>
 
-  /** {@inheritDoc} */
   @Override
   public String getId() {
-<span class="fc" id="L112">    return this.id;</span>
+<span class="fc" id="L119">    return this.id;</span>
   }
 
-  /** {@inheritDoc} */
   @Override
-  @SuppressWarnings(&quot;unchecked&quot;)
   public void putObject(Object key, Object value) {
-<span class="fc" id="L119">    cache.put(key, value);</span>
-<span class="fc" id="L120">  }</span>
+<span class="fc" id="L124">    cache.put(key, value);</span>
+<span class="fc" id="L125">  }</span>
 
-  /** {@inheritDoc} */
   @Override
-  @SuppressWarnings(&quot;unchecked&quot;)
   public Object getObject(Object key) {
-<span class="fc" id="L126">    return cache.get(key);</span>
+<span class="fc" id="L129">    return cache.get(key);</span>
   }
 
-  /** {@inheritDoc} */
   @Override
-  @SuppressWarnings(&quot;unchecked&quot;)
   public Object removeObject(Object key) {
-<span class="fc" id="L133">    return cache.remove(key);</span>
+<span class="fc" id="L134">    return cache.remove(key);</span>
   }
 
-  /** {@inheritDoc} */
   @Override
   public void clear() {
 <span class="fc" id="L139">    cache.clear();</span>
 <span class="fc" id="L140">  }</span>
 
-  /** {@inheritDoc} */
   @Override
   public int getSize() {
-<span class="fc" id="L145">    return cache.size(CachePeekMode.PRIMARY);</span>
+<span class="fc" id="L144">    return cache.size(CachePeekMode.PRIMARY);</span>
   }
 
-  /** {@inheritDoc} */
   @Override
   public ReadWriteLock getReadWriteLock() {
-<span class="nc" id="L151">    return readWriteLock;</span>
+<span class="nc" id="L149">    return readWriteLock;</span>
   }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
