@@ -45,7 +45,7 @@
                     <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder">
                         <property name="addresses">
                             <list>
-                                <!-- In distributed environment, replace with actual host IP address. -->
+                                <!-- In distributed environment, replace with actual host IP addresses. -->
                                 <value>127.0.0.1:47500..47509</value>
                             </list>
                         </property>
@@ -59,7 +59,7 @@
         <!-- Set a cache name. -->
         <property name="name" value="myBatisCache"/>
 
-        <!-- Set cache mode to LOCAL by default. -->
+        <!-- Set cache mode to PARTITIONED. -->
         <property name="cacheMode" value="PARTITIONED"/>
     </bean>
 
