@@ -29,7 +29,7 @@
 
     <groupId>org.mybatis.caches</groupId>
     <artifactId>mybatis-ignite</artifactId>
-    <version>1.0.9-SNAPSHOT</version>
+    <version>1.0.10-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>mybatis-ignite</name>
@@ -64,7 +64,7 @@
         <clirr.comparisonVersion>1.0.6</clirr.comparisonVersion>
         <findbugs.onlyAnalyze>org.mybatis.caches.ignite.*</findbugs.onlyAnalyze>
         <gcu.product>Cache</gcu.product>
-        <ignite.version>2.6.0</ignite.version>
+        <ignite.version>2.7.0</ignite.version>
 
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
