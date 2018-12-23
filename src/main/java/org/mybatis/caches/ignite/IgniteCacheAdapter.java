@@ -33,9 +33,8 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
 
 /**
- * Cache adapter for Ignite. Cache is initialized from
- * IGNITE_HOME/config/default-config.xml settings,
- * otherwise default one is started.
+ * Cache adapter for Ignite. Cache is initialized from IGNITE_HOME/config/default-config.xml settings, otherwise default
+ * one is started.
  *
  * @author Roman Shtykh
  */

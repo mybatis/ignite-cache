@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis-parent</artifactId>
-        <version>30</version>
+        <version>31-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -65,9 +65,6 @@
         <findbugs.onlyAnalyze>org.mybatis.caches.ignite.*</findbugs.onlyAnalyze>
         <gcu.product>Cache</gcu.product>
         <ignite.version>2.7.0</ignite.version>
-
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -112,9 +109,9 @@
          | test dependencies
         -->
         <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <version>4.12.3</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.3.2</version>
             <scope>test</scope>
         </dependency>
 
