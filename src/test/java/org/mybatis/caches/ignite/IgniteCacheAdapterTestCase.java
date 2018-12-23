@@ -16,12 +16,14 @@
 package org.mybatis.caches.ignite;
 
 import java.io.File;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Ignite Test Case.
@@ -33,7 +35,7 @@ public final class IgniteCacheAdapterTestCase {
 
   private static int TEST_OBJ_NUM = 1000;
 
-  @BeforeClass
+  @BeforeAll
   public static void newCache() {
     cache = new IgniteCacheAdapter(DEFAULT_ID);
   }
@@ -69,9 +71,11 @@ public final class IgniteCacheAdapterTestCase {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void shouldNotCreateCache() {
-    cache = new IgniteCacheAdapter(null);
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      cache = new IgniteCacheAdapter(null);
+    });
   }
 
   @Test
