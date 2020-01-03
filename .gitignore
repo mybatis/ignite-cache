@@ -18,3 +18,5 @@
 velocity.log
 /bin
 .mvn/wrapper/maven-wrapper.jar
+*.releaseBackup
+ignite/README.txt
