@@ -44,4 +44,4 @@ jobs:
         if: matrix.java == '16' || matrix.java == '17'
         run: ./mvnw test -B -D"license.skip=true"
         env:
-          MAVEN_OPTS: --add-opens java.base/java.util=ALL-UNNAMED
+          MAVEN_OPTS: --add-opens java.base/java.nio=ALL-UNNAMED
