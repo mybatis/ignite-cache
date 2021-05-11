@@ -135,7 +135,29 @@
             <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>jdk16on</id>
+            <activation>
+                <jdk>[16,)</jdk>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-surefire-plugin</artifactId>
+                            <configuration>
+                                <fork>true</fork>
+                                <argLine>${argLine} -Djdk.attach.allowAttachSelf --add-opens java.base/java.nio=ALL-UNNAMED</argLine>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </
 
 </project>
