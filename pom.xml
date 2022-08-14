@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-       Copyright 2016-2021 the original author or authors.
+       Copyright 2016-2022 the original author or authors.
 
        Licensed under the Apache License, Version 2.0 (the "License");
        you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis-parent</artifactId>
-        <version>34</version>
+        <version>35</version>
         <relativePath />
     </parent>
 
@@ -48,8 +48,8 @@
         <url>https://github.com/mybatis/ignite-cache/issues</url>
     </issueManagement>
     <ciManagement>
-        <system>Travis CI</system>
-        <url>https://travis-ci.org/mybatis/ignite-cache</url>
+        <system>Github Actions</system>
+        <url>https://github.com/mybatis/ignite-cache/actions</url>
     </ciManagement>
     <distributionManagement>
         <site>
@@ -139,9 +139,9 @@
 
     <profiles>
         <profile>
-            <id>jdk16on</id>
+            <id>jdk17on</id>
             <activation>
-                <jdk>[16,)</jdk>
+                <jdk>[17,)</jdk>
             </activation>
             <build>
                 <pluginManagement>
@@ -151,7 +151,7 @@
                             <artifactId>maven-surefire-plugin</artifactId>
                             <configuration>
                                 <fork>true</fork>
-                                <argLine>${argLine} -Djdk.attach.allowAttachSelf --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED</argLine>
+                                <argLine>${argLine} -Djdk.attach.allowAttachSelf --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED</argLine>
                             </configuration>
                         </plugin>
                     </plugins>
