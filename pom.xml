@@ -151,7 +151,7 @@
                             <artifactId>maven-surefire-plugin</artifactId>
                             <configuration>
                                 <fork>true</fork>
-                                <argLine>${argLine} -Djdk.attach.allowAttachSelf --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED</argLine>
+                                <argLine>${argLine} -Djdk.attach.allowAttachSelf --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED</argLine>
                             </configuration>
                         </plugin>
                     </plugins>
