@@ -7,11 +7,11 @@ MyBatis Ignite Extension
 [![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/org.mybatis.caches/mybatis-ignite.svg)](https://oss.sonatype.org/content/repositories/snapshots/org/mybatis/caches/mybatis-ignite/)
 [![License](https://img.shields.io/:license-apache-brightgreen.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
-![mybatis-ignite](http://mybatis.github.io/images/mybatis-logo.png)
+![mybatis-ignite](https://mybatis.org/images/mybatis-logo.png)
 
 MyBatis-Ignite extension Ignite support for MyBatis Cache.
 
 Essentials
 ----------
 
-* [See the docs](http://mybatis.github.io/ignite-cache/)
+* [See the docs](https://mybatis.org/ignite-cache/)
