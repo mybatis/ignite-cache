@@ -31,8 +31,8 @@
         <!-- Set a cache name. -->
         <property name="name" value="myBatisCache"/>
 
-        <!-- Set cache mode to LOCAL by default. -->
-        <property name="cacheMode" value="LOCAL"/>
+        <!-- Set cache mode to PARTITIONED by default. -->
+        <property name="cacheMode" value="PARTITIONED"/>
     </bean>
 
 </beans>
