@@ -28,7 +28,7 @@
 
     <groupId>org.mybatis.caches</groupId>
     <artifactId>mybatis-ignite</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.1.1</version>
     <packaging>jar</packaging>
 
     <name>mybatis-ignite</name>
@@ -41,7 +41,7 @@
         <url>http://github.com/mybatis/ignite-cache</url>
         <connection>scm:git:ssh://github.com/mybatis/ignite-cache.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/mybatis/ignite-cache.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>mybatis-ignite-1.1.1</tag>
     </scm>
     <issueManagement>
         <system>GitHub Issue Management</system>
@@ -69,7 +69,7 @@
         <slf4j.version>2.0.5</slf4j.version>
 
         <!-- Reproducible Builds -->
-        <project.build.outputTimestamp>1757561022</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1670787856</project.build.outputTimestamp>
     </properties>
 
     <dependencies>
