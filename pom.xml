@@ -63,8 +63,9 @@
         <clirr.comparisonVersion>1.0.6</clirr.comparisonVersion>
         <findbugs.onlyAnalyze>org.mybatis.caches.ignite.*</findbugs.onlyAnalyze>
         <gcu.product>Cache</gcu.product>
-        <ignite.version>2.14.0</ignite.version>
         <module.name>org.mybatis.caches.ignite</module.name>
+
+        <ignite.version>2.14.0</ignite.version>
         <slf4j.version>2.0.5</slf4j.version>
 
         <!-- Reproducible Builds -->
