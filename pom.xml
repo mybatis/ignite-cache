@@ -29,7 +29,6 @@
     <groupId>org.mybatis.caches</groupId>
     <artifactId>mybatis-ignite</artifactId>
     <version>1.1.2-SNAPSHOT</version>
-    <packaging>jar</packaging>
 
     <name>mybatis-ignite</name>
     <description>Ignite support for MyBatis Cache</description>
@@ -39,7 +38,7 @@
 
     <scm>
         <url>http://github.com/mybatis/ignite-cache</url>
-        <connection>scm:git:ssh://github.com/mybatis/ignite-cache.git</connection>
+        <connection>scm:git:ssh://git@github.com/mybatis/ignite-cache.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/mybatis/ignite-cache.git</developerConnection>
         <tag>mybatis-ignite-1.1.1</tag>
     </scm>
@@ -53,9 +52,9 @@
     </ciManagement>
     <distributionManagement>
         <site>
-            <id>gh-pages</id>
+            <id>gh-pages-scm</id>
             <name>Mybatis GitHub Pages</name>
-            <url>git:ssh://git@github.com/mybatis/ignite-cache.git?gh-pages#</url>
+            <url>scm:git:ssh://git@github.com/mybatis/ignite-cache.git</url>
         </site>
     </distributionManagement>
 
