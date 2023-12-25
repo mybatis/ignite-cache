@@ -64,7 +64,7 @@
         <gcu.product>Cache</gcu.product>
         <module.name>org.mybatis.caches.ignite</module.name>
 
-        <ignite.version>2.15.0</ignite.version>
+        <ignite.version>2.16.0</ignite.version>
         <slf4j.version>2.0.9</slf4j.version>
 
         <!-- Reproducible Builds -->
