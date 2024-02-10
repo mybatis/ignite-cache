@@ -17,6 +17,7 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -32,7 +33,7 @@
 
     <name>mybatis-ignite</name>
     <description>Ignite support for MyBatis Cache</description>
-    <url>https://github.com/mybatis/ignite-cache</url>
+    <url>https://www.mybatis.org/ignite-cache/</url>
 
     <inceptionYear>2016</inceptionYear>
 
@@ -72,9 +73,7 @@
     </properties>
 
     <dependencies>
-        <!--
-         | Provided dependencies
-        -->
+        <!-- Provided dependencies -->
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
@@ -82,9 +81,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!--
-         | compile dependencies
-        -->
+        <!-- compile dependencies -->
         <dependency>
             <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-core</artifactId>
@@ -105,9 +102,7 @@
             </exclusions>
         </dependency>
 
-        <!--
-         | trick to fix javadoc generation
-        -->
+        <!-- trick to fix javadoc generation -->
         <dependency>
             <groupId>jakarta.transaction</groupId>
             <artifactId>jakarta.transaction-api</artifactId>
@@ -115,9 +110,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!--
-         | test dependencies
-        -->
+        <!-- test dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
