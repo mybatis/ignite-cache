@@ -38,7 +38,7 @@
     <inceptionYear>2016</inceptionYear>
 
     <scm>
-        <url>http://github.com/mybatis/ignite-cache</url>
+        <url>https://github.com/mybatis/ignite-cache/</url>
         <connection>scm:git:ssh://git@github.com/mybatis/ignite-cache.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/mybatis/ignite-cache.git</developerConnection>
         <tag>HEAD</tag>
