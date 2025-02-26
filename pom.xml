@@ -66,7 +66,7 @@
     <module.name>org.mybatis.caches.ignite</module.name>
 
     <ignite.version>2.17.0</ignite.version>
-    <slf4j.version>2.0.16</slf4j.version>
+    <slf4j.version>2.0.17</slf4j.version>
 
     <!-- Reproducible Builds -->
     <project.build.outputTimestamp>1670787925</project.build.outputTimestamp>
