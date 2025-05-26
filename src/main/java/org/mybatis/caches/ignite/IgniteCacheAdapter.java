@@ -15,7 +15,7 @@
  */
 package org.mybatis.caches.ignite;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.concurrent.locks.ReadWriteLock;
 
 import org.apache.ibatis.cache.Cache;
@@ -94,7 +94,7 @@ public final class IgniteCacheAdapter implements Cache {
     try {
       DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
 
-      new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(new File(CFG_PATH)));
+      new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(Path.of(CFG_PATH)));
 
       cacheCfg = (CacheConfiguration<Object, Object>) factory.getBean("templateCacheCfg");
 

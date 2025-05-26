@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -82,14 +82,14 @@ public final class IgniteCacheAdapterTestCase {
   public void shouldCreateDefaultCache() throws Exception {
     String cfgPath = "config/default-config.xml";
 
-    File cfgFile = new File(cfgPath);
-    File cfgBkpFile = new File(cfgPath + ".bkp");
+    Path cfgFile = Path.of(cfgPath);
+    Path cfgBkpFile = Path.of(cfgPath + ".bkp");
 
-    if (cfgFile.renameTo(cfgBkpFile)) {
+    if (cfgFile.toFile().renameTo(cfgBkpFile.toFile())) {
       try {
         new IgniteCacheAdapter(DEFAULT_ID);
       } finally {
-        if (!cfgBkpFile.renameTo(cfgFile)) {
+        if (!cfgBkpFile.toFile().renameTo(cfgFile.toFile())) {
           throw new Exception("Failed to rename config file!");
         }
       }
