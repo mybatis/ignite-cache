@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Ignite Test Case.
  */
-public final class IgniteCacheAdapterTestCase {
+class IgniteCacheAdapterTestCase {
   private static final String DEFAULT_ID = "Ignite";
 
   private static IgniteCacheAdapter cache;
@@ -36,12 +36,12 @@ public final class IgniteCacheAdapterTestCase {
   private static int TEST_OBJ_NUM = 1000;
 
   @BeforeAll
-  public static void newCache() {
+  static void newCache() {
     cache = new IgniteCacheAdapter(DEFAULT_ID);
   }
 
   @Test
-  public void shouldDemonstrateCopiesAreKeptAndEqual() {
+  void shouldDemonstrateCopiesAreKeptAndEqual() {
     for (int i = 0; i < TEST_OBJ_NUM; i++) {
       cache.putObject(i, i);
       assertEquals(i, cache.getObject(i));
@@ -50,7 +50,7 @@ public final class IgniteCacheAdapterTestCase {
   }
 
   @Test
-  public void shouldRemoveItemOnDemand() {
+  void shouldRemoveItemOnDemand() {
     cache.putObject(0, 0);
     assertNotNull(cache.getObject(0));
     cache.removeObject(0);
@@ -58,7 +58,7 @@ public final class IgniteCacheAdapterTestCase {
   }
 
   @Test
-  public void shouldFlushAllItemsOnDemand() {
+  void shouldFlushAllItemsOnDemand() {
     for (int i = 0; i < TEST_OBJ_NUM; i++) {
       cache.putObject(i, i);
     }
@@ -72,24 +72,24 @@ public final class IgniteCacheAdapterTestCase {
   }
 
   @Test
-  public void shouldNotCreateCache() {
+  void shouldNotCreateCache() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       cache = new IgniteCacheAdapter(null);
     });
   }
 
   @Test
-  public void shouldCreateDefaultCache() throws Exception {
+  void shouldCreateDefaultCache() throws Exception {
     String cfgPath = "config/default-config.xml";
 
-    File cfgFile = new File(cfgPath);
-    File cfgBkpFile = new File(cfgPath + ".bkp");
+    Path cfgFile = Path.of(cfgPath);
+    Path cfgBkpFile = Path.of(cfgPath + ".bkp");
 
-    if (cfgFile.renameTo(cfgBkpFile)) {
+    if (cfgFile.toFile().renameTo(cfgBkpFile.toFile())) {
       try {
         new IgniteCacheAdapter(DEFAULT_ID);
       } finally {
-        if (!cfgBkpFile.renameTo(cfgFile)) {
+        if (!cfgBkpFile.toFile().renameTo(cfgFile.toFile())) {
           throw new Exception("Failed to rename config file!");
         }
       }
@@ -98,7 +98,7 @@ public final class IgniteCacheAdapterTestCase {
   }
 
   @Test
-  public void shouldVerifyCacheId() {
+  void shouldVerifyCacheId() {
     assertEquals(DEFAULT_ID, cache.getId());
   }
 }
