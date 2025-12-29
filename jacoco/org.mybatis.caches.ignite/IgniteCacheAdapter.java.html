@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IgniteCacheAdapter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mybatis-ignite</a> &gt; <a href="index.source.html" class="el_package">org.mybatis.caches.ignite</a> &gt; <span class="el_source">IgniteCacheAdapter.java</span></div><h1>IgniteCacheAdapter.java</h1><pre class="source lang-java linenums">/*
+ *    Copyright 2016-2025 the original author or authors.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *       https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+package org.mybatis.caches.ignite;
+
+import java.nio.file.Path;
+import java.util.concurrent.locks.ReadWriteLock;
+
+import org.apache.ibatis.cache.Cache;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
+import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCache;
+import org.apache.ignite.IgniteIllegalStateException;
+import org.apache.ignite.Ignition;
+import org.apache.ignite.cache.CachePeekMode;
+import org.apache.ignite.configuration.CacheConfiguration;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.core.io.FileSystemResource;
+
+/**
+ * Cache adapter for Ignite. Cache is initialized from IGNITE_HOME/config/default-config.xml settings, otherwise default
+ * one is started.
+ *
+ * @author Roman Shtykh
+ */
+public final class IgniteCacheAdapter implements Cache {
+
+  /** Logger. */
+<span class="fc" id="L45">  private static final Log log = LogFactory.getLog(IgniteCacheAdapter.class);</span>
+
+  /** Cache id. */
+  private final String id;
+
+  /**
+   * {@code ReadWriteLock}.
+   */
+<span class="fc" id="L53">  private final ReadWriteLock readWriteLock = new DummyReadWriteLock();</span>
+
+  /** Grid instance. */
+  private static final Ignite ignite;
+
+  /** Cache. */
+  private final IgniteCache&lt;Object, Object&gt; cache;
+
+  /** Ignite configuration file path. */
+  private static final String CFG_PATH = &quot;config/default-config.xml&quot;;
+
+  static {
+<span class="fc" id="L65">    boolean started = false;</span>
+    try {
+<span class="nc" id="L67">      Ignition.ignite();</span>
+<span class="nc" id="L68">      started = true;</span>
+<span class="fc" id="L69">    } catch (IgniteIllegalStateException e) {</span>
+<span class="fc" id="L70">      log.debug(&quot;Using the Ignite instance that has been already started.&quot;);</span>
+<span class="fc" id="L71">      log.trace(&quot;&quot; + e);</span>
+<span class="nc" id="L72">    }</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">    if (started) {</span>
+<span class="nc" id="L74">      ignite = Ignition.ignite();</span>
+    } else {
+<span class="fc" id="L76">      ignite = Ignition.start();</span>
+    }
+<span class="fc" id="L78">  }</span>
+
+  /**
+   * Constructor.
+   *
+   * @param id
+   *          Cache id.
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L87">  public IgniteCacheAdapter(String id) {</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">    if (id == null) {</span>
+<span class="fc" id="L89">      throw new IllegalArgumentException(&quot;Cache instances require an ID&quot;);</span>
+    }
+
+<span class="fc" id="L92">    CacheConfiguration&lt;Object, Object&gt; cacheCfg = null;</span>
+
+    try {
+<span class="fc" id="L95">      DefaultListableBeanFactory factory = new DefaultListableBeanFactory();</span>
+
+<span class="fc" id="L97">      new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(Path.of(CFG_PATH)));</span>
+
+<span class="fc" id="L99">      cacheCfg = (CacheConfiguration&lt;Object, Object&gt;) factory.getBean(&quot;templateCacheCfg&quot;);</span>
+
+<span class="fc" id="L101">      cacheCfg.setEvictionPolicyFactory(null);</span>
+<span class="fc" id="L102">      cacheCfg.setCacheLoaderFactory(null);</span>
+<span class="fc" id="L103">      cacheCfg.setCacheWriterFactory(null);</span>
+
+      // overrides template cache name with the specified id.
+<span class="fc" id="L106">      cacheCfg.setName(id);</span>
+<span class="fc" id="L107">    } catch (NoSuchBeanDefinitionException | BeanDefinitionStoreException e) {</span>
+      // initializes the default cache.
+<span class="fc" id="L109">      log.warn(&quot;Initializing the default cache. Consider properly configuring '&quot; + CFG_PATH + &quot;' instead.&quot;);</span>
+<span class="fc" id="L110">      log.trace(&quot;&quot; + e);</span>
+
+<span class="fc" id="L112">      cacheCfg = new CacheConfiguration&lt;&gt;(id);</span>
+<span class="fc" id="L113">    }</span>
+
+<span class="fc" id="L115">    cache = ignite.getOrCreateCache(cacheCfg);</span>
+
+<span class="fc" id="L117">    this.id = id;</span>
+<span class="fc" id="L118">  }</span>
+
+  @Override
+  public String getId() {
+<span class="fc" id="L122">    return this.id;</span>
+  }
+
+  @Override
+  public void putObject(Object key, Object value) {
+<span class="fc" id="L127">    cache.put(key, value);</span>
+<span class="fc" id="L128">  }</span>
+
+  @Override
+  public Object getObject(Object key) {
+<span class="fc" id="L132">    return cache.get(key);</span>
+  }
+
+  @Override
+  public Object removeObject(Object key) {
+<span class="fc" id="L137">    return cache.remove(key);</span>
+  }
+
+  @Override
+  public void clear() {
+<span class="fc" id="L142">    cache.clear();</span>
+<span class="fc" id="L143">  }</span>
+
+  @Override
+  public int getSize() {
+<span class="fc" id="L147">    return cache.size(CachePeekMode.PRIMARY);</span>
+  }
+
+  @Override
+  public ReadWriteLock getReadWriteLock() {
+<span class="nc" id="L152">    return readWriteLock;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
