@@ -70,6 +70,9 @@
 
     <!-- Reproducible Builds -->
     <project.build.outputTimestamp>1670787925</project.build.outputTimestamp>
+
+    <!-- Surefire Arglines -->
+    <argLine>--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED</argLine>
   </properties>
 
   <dependencies>
@@ -130,17 +133,5 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <profiles>
-    <profile>
-      <id>jdk17on</id>
-      <activation>
-        <jdk>[17,)</jdk>
-      </activation>
-      <properties>
-        <argLine>--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED</argLine>
-      </properties>
-    </profile>
-  </profiles>
 
 </project>
