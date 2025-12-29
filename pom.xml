@@ -29,7 +29,7 @@
 
   <groupId>org.mybatis.caches</groupId>
   <artifactId>mybatis-ignite</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1-SNAPSHOT</version>
 
   <name>mybatis-ignite</name>
   <description>Ignite support for MyBatis Cache</description>
@@ -40,7 +40,7 @@
   <scm>
     <connection>scm:git:ssh://git@github.com/mybatis/ignite-cache.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/mybatis/ignite-cache.git</developerConnection>
-    <tag>mybatis-ignite-1.2.0</tag>
+    <tag>HEAD</tag>
     <url>https://github.com/mybatis/ignite-cache/</url>
   </scm>
   <issueManagement>
@@ -69,7 +69,7 @@
     <slf4j.version>2.0.17</slf4j.version>
 
     <!-- Reproducible Builds -->
-    <project.build.outputTimestamp>1767048243</project.build.outputTimestamp>
+    <project.build.outputTimestamp>1767048269</project.build.outputTimestamp>
 
     <!-- Surefire Arglines -->
     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED</argLine>
