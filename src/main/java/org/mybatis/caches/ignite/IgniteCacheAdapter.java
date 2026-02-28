@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2025 the original author or authors.
+ *    Copyright 2016-2026 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,27 +15,32 @@
  */
 package org.mybatis.caches.ignite;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Properties;
 import java.util.concurrent.locks.ReadWriteLock;
 
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
-import org.apache.ignite.Ignite;
-import org.apache.ignite.IgniteCache;
-import org.apache.ignite.IgniteIllegalStateException;
-import org.apache.ignite.Ignition;
-import org.apache.ignite.cache.CachePeekMode;
-import org.apache.ignite.configuration.CacheConfiguration;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.core.io.FileSystemResource;
+import org.apache.ignite.catalog.ColumnType;
+import org.apache.ignite.catalog.definitions.ColumnDefinition;
+import org.apache.ignite.catalog.definitions.TableDefinition;
+import org.apache.ignite.client.IgniteClient;
+import org.apache.ignite.sql.ResultSet;
+import org.apache.ignite.sql.SqlRow;
+import org.apache.ignite.table.KeyValueView;
+import org.apache.ignite.table.Tuple;
 
 /**
- * Cache adapter for Ignite. Cache is initialized from IGNITE_HOME/config/default-config.xml settings, otherwise default
- * one is started.
+ * Cache adapter for Ignite 3. Connects to a running Ignite 3 cluster via thin client. The server address is read from
+ * {@value #CFG_PATH} (property {@code ignite.addresses}), otherwise the default {@value #DEFAULT_ADDRESSES} is used.
  *
  * @author Roman Shtykh
  */
@@ -47,34 +52,43 @@ public final class IgniteCacheAdapter implements Cache {
   /** Cache id. */
   private final String id;
 
+  /** Table name derived from the cache id. */
+  private final String tableName;
+
   /**
    * {@code ReadWriteLock}.
    */
   private final ReadWriteLock readWriteLock = new DummyReadWriteLock();
 
-  /** Grid instance. */
-  private static final Ignite ignite;
+  /** Ignite thin client (shared across all adapter instances). */
+  private static final IgniteClient igniteClient;
 
-  /** Cache. */
-  private final IgniteCache<Object, Object> cache;
+  /** Key-value view for this cache's table. */
+  private final KeyValueView<Tuple, Tuple> cache;
 
-  /** Ignite configuration file path. */
-  private static final String CFG_PATH = "config/default-config.xml";
+  /** Default Ignite 3 thin client port. */
+  private static final String DEFAULT_ADDRESSES = "127.0.0.1:10800";
+
+  /** Ignite client configuration file path. */
+  private static final String CFG_PATH = "config/default-config.properties";
+
+  /** Table key column name. */
+  private static final String KEY_COL = "key";
+
+  /** Table value column name. */
+  private static final String VAL_COL = "val";
 
   static {
-    boolean started = false;
-    try {
-      Ignition.ignite();
-      started = true;
-    } catch (IgniteIllegalStateException e) {
-      log.debug("Using the Ignite instance that has been already started.");
+    String addresses = DEFAULT_ADDRESSES;
+    Properties props = new Properties();
+    try (InputStream is = Files.newInputStream(Path.of(CFG_PATH))) {
+      props.load(is);
+      addresses = props.getProperty("ignite.addresses", DEFAULT_ADDRESSES);
+    } catch (IOException e) {
+      log.debug("Ignite config file not found at '" + CFG_PATH + "', using defaults.");
       log.trace("" + e);
     }
-    if (started) {
-      ignite = Ignition.ignite();
-    } else {
-      ignite = Ignition.start();
-    }
+    igniteClient = IgniteClient.builder().addresses(addresses.split(",")).build();
   }
 
   /**
@@ -83,38 +97,18 @@ public final class IgniteCacheAdapter implements Cache {
    * @param id
    *          Cache id.
    */
-  @SuppressWarnings("unchecked")
   public IgniteCacheAdapter(String id) {
     if (id == null) {
       throw new IllegalArgumentException("Cache instances require an ID");
     }
-
-    CacheConfiguration<Object, Object> cacheCfg = null;
-
-    try {
-      DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
-
-      new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(Path.of(CFG_PATH)));
-
-      cacheCfg = (CacheConfiguration<Object, Object>) factory.getBean("templateCacheCfg");
-
-      cacheCfg.setEvictionPolicyFactory(null);
-      cacheCfg.setCacheLoaderFactory(null);
-      cacheCfg.setCacheWriterFactory(null);
-
-      // overrides template cache name with the specified id.
-      cacheCfg.setName(id);
-    } catch (NoSuchBeanDefinitionException | BeanDefinitionStoreException e) {
-      // initializes the default cache.
-      log.warn("Initializing the default cache. Consider properly configuring '" + CFG_PATH + "' instead.");
-      log.trace("" + e);
-
-      cacheCfg = new CacheConfiguration<>(id);
-    }
-
-    cache = ignite.getOrCreateCache(cacheCfg);
-
     this.id = id;
+    this.tableName = toTableName(id);
+
+    igniteClient.catalog().createTable(
+        TableDefinition.builder(tableName).ifNotExists().columns(ColumnDefinition.column(KEY_COL, ColumnType.VARBINARY),
+            ColumnDefinition.column(VAL_COL, ColumnType.VARBINARY)).primaryKey(KEY_COL).build());
+
+    cache = igniteClient.tables().table(tableName).keyValueView();
   }
 
   @Override
@@ -124,31 +118,62 @@ public final class IgniteCacheAdapter implements Cache {
 
   @Override
   public void putObject(Object key, Object value) {
-    cache.put(key, value);
+    cache.put(null, Tuple.create().set(KEY_COL, serialize(key)), Tuple.create().set(VAL_COL, serialize(value)));
   }
 
   @Override
   public Object getObject(Object key) {
-    return cache.get(key);
+    Tuple valueTuple = cache.get(null, Tuple.create().set(KEY_COL, serialize(key)));
+    return valueTuple != null ? deserialize(valueTuple.bytesValue(VAL_COL)) : null;
   }
 
   @Override
   public Object removeObject(Object key) {
-    return cache.remove(key);
+    Tuple valueTuple = cache.getAndRemove(null, Tuple.create().set(KEY_COL, serialize(key)));
+    return valueTuple != null ? deserialize(valueTuple.bytesValue(VAL_COL)) : null;
   }
 
   @Override
   public void clear() {
-    cache.clear();
+    cache.removeAll(null);
   }
 
   @Override
   public int getSize() {
-    return cache.size(CachePeekMode.PRIMARY);
+    try (ResultSet<SqlRow> rs = igniteClient.sql().execute(null, "SELECT COUNT(*) FROM " + tableName)) {
+      return rs.hasNext() ? (int) rs.next().longValue(0) : 0;
+    }
   }
 
   @Override
   public ReadWriteLock getReadWriteLock() {
     return readWriteLock;
+  }
+
+  private static String toTableName(String id) {
+    // Sanitize to alphanumeric and underscore only, ensuring safe use in SQL identifiers.
+    return id.replaceAll("[^a-zA-Z0-9_]", "_").toUpperCase();
+  }
+
+  private static byte[] serialize(Object obj) {
+    try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+      oos.writeObject(obj);
+      return baos.toByteArray();
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Cannot serialize object of type " + obj.getClass().getName(), e);
+    }
+  }
+
+  private static Object deserialize(byte[] bytes) {
+    if (bytes == null) {
+      return null;
+    }
+    try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+        ObjectInputStream ois = new ObjectInputStream(bais)) {
+      return ois.readObject();
+    } catch (IOException | ClassNotFoundException e) {
+      throw new IllegalStateException("Cannot deserialize cache object", e);
+    }
   }
 }
