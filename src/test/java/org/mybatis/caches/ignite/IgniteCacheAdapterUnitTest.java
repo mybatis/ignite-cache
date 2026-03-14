@@ -210,4 +210,57 @@ class IgniteCacheAdapterUnitTest {
     byte[] bytes = IgniteCacheAdapter.serialize(original);
     assertEquals(original, IgniteCacheAdapter.deserialize(bytes));
   }
+
+  @Test
+  void shouldThrowOnSerializeNonSerializable() {
+    // Thread is not serializable; serialize() should wrap the IOException
+    assertThrows(IllegalArgumentException.class, () -> IgniteCacheAdapter.serialize(Thread.currentThread()));
+  }
+
+  @Test
+  void shouldThrowOnDeserializeCorruptedBytes() {
+    // Bytes that are not a valid Java serialization stream
+    byte[] corrupted = { 0x00, 0x01, 0x02, 0x03 };
+    assertThrows(IllegalStateException.class, () -> IgniteCacheAdapter.deserialize(corrupted));
+  }
+
+  @Test
+  void shouldThrowWhenPublicConstructorReceivesNullId() {
+    // Exercises the requireNonNullId path in the public constructor without connecting to Ignite
+    assertThrows(IllegalArgumentException.class, () -> new IgniteCacheAdapter(null));
+  }
+
+  @Test
+  void shouldUseExistingSharedClientWhenAlreadyInitialized() throws Exception {
+    // Inject the already-configured mockClient as the static sharedClient so the public constructor
+    // takes the non-null fast path through getOrCreateIgniteClient() without connecting to Ignite.
+    java.lang.reflect.Field field = IgniteCacheAdapter.class.getDeclaredField("sharedClient");
+    field.setAccessible(true);
+    IgniteClient previous = (IgniteClient) field.get(null);
+    field.set(null, mockClient);
+    try {
+      IgniteCacheAdapter adapter = new IgniteCacheAdapter(DEFAULT_ID);
+      assertNotNull(adapter);
+      assertEquals(DEFAULT_ID, adapter.getId());
+    } finally {
+      field.set(null, previous);
+    }
+  }
+
+  @Test
+  void shouldFallbackToDefaultAddressWhenConfigFileMissing() throws Exception {
+    // Hide the config file so createIgniteClient() takes the IOException fallback branch,
+    // then verify it throws because no Ignite server is reachable.
+    java.nio.file.Path cfgFile = java.nio.file.Path.of(IgniteCacheAdapter.CFG_PATH);
+    java.nio.file.Path cfgBkp = java.nio.file.Path.of(IgniteCacheAdapter.CFG_PATH + ".unit_bkp");
+    org.junit.jupiter.api.Assumptions.assumeTrue(java.nio.file.Files.exists(cfgFile), "Config file not present");
+    java.nio.file.Files.move(cfgFile, cfgBkp, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+    try {
+      // createIgniteClient() will log the IOException and fall back to DEFAULT_ADDRESSES;
+      // build() then throws because no server is running.
+      assertThrows(Exception.class, IgniteCacheAdapter::createIgniteClient);
+    } finally {
+      java.nio.file.Files.move(cfgBkp, cfgFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+    }
+  }
 }
