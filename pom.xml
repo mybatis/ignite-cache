@@ -66,6 +66,7 @@
     <module.name>org.mybatis.caches.ignite</module.name>
 
     <ignite.version>3.1.0</ignite.version>
+    <mockito.version>5.23.0</mockito.version>
     <slf4j.version>2.0.17</slf4j.version>
 
     <!-- Reproducible Builds -->
@@ -110,14 +111,14 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>5.16.0</version>
+      <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-junit-jupiter</artifactId>
-      <version>5.16.0</version>
+      <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
 
