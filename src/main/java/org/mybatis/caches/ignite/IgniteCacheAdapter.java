@@ -60,25 +60,45 @@ public final class IgniteCacheAdapter implements Cache {
    */
   private final ReadWriteLock readWriteLock = new DummyReadWriteLock();
 
-  /** Ignite thin client (shared across all adapter instances). */
-  private static final IgniteClient igniteClient;
+  /** Ignite thin client (shared across all adapter instances). Lazily initialized. */
+  private static volatile IgniteClient sharedClient;
+
+  /** This adapter's Ignite client. */
+  private final IgniteClient client;
 
   /** Key-value view for this cache's table. */
   private final KeyValueView<Tuple, Tuple> cache;
 
   /** Default Ignite 3 thin client port. */
-  private static final String DEFAULT_ADDRESSES = "127.0.0.1:10800";
+  static final String DEFAULT_ADDRESSES = "127.0.0.1:10800";
 
   /** Ignite client configuration file path. */
-  private static final String CFG_PATH = "config/default-config.properties";
+  static final String CFG_PATH = "config/default-config.properties";
 
   /** Table key column name. */
-  private static final String KEY_COL = "key";
+  static final String KEY_COL = "key";
 
   /** Table value column name. */
-  private static final String VAL_COL = "val";
+  static final String VAL_COL = "val";
 
-  static {
+  /**
+   * Returns the shared {@link IgniteClient}, creating it lazily on first call.
+   */
+  private static IgniteClient getOrCreateIgniteClient() {
+    if (sharedClient == null) {
+      synchronized (IgniteCacheAdapter.class) {
+        if (sharedClient == null) {
+          sharedClient = createIgniteClient();
+        }
+      }
+    }
+    return sharedClient;
+  }
+
+  /**
+   * Creates a new {@link IgniteClient} from the configuration file or defaults.
+   */
+  static IgniteClient createIgniteClient() {
     String addresses = DEFAULT_ADDRESSES;
     Properties props = new Properties();
     try (InputStream is = Files.newInputStream(Path.of(CFG_PATH))) {
@@ -88,7 +108,7 @@ public final class IgniteCacheAdapter implements Cache {
       log.debug("Ignite config file not found at '" + CFG_PATH + "', using defaults.");
       log.trace("" + e);
     }
-    igniteClient = IgniteClient.builder().addresses(addresses.split(",")).build();
+    return IgniteClient.builder().addresses(addresses.split(",")).build();
   }
 
   /**
@@ -98,11 +118,29 @@ public final class IgniteCacheAdapter implements Cache {
    *          Cache id.
    */
   public IgniteCacheAdapter(String id) {
+    this(requireNonNullId(id), getOrCreateIgniteClient());
+  }
+
+  private static String requireNonNullId(String id) {
     if (id == null) {
       throw new IllegalArgumentException("Cache instances require an ID");
     }
-    this.id = id;
+    return id;
+  }
+
+  /**
+   * Package-private constructor for testing: allows injection of a mock {@link IgniteClient} without requiring a
+   * running Ignite cluster.
+   *
+   * @param id
+   *          Cache id.
+   * @param igniteClient
+   *          The {@link IgniteClient} to use.
+   */
+  IgniteCacheAdapter(String id, IgniteClient igniteClient) {
+    this.id = requireNonNullId(id);
     this.tableName = toTableName(id);
+    this.client = igniteClient;
 
     igniteClient.catalog().createTable(
         TableDefinition.builder(tableName).ifNotExists().columns(ColumnDefinition.column(KEY_COL, ColumnType.VARBINARY),
@@ -140,7 +178,7 @@ public final class IgniteCacheAdapter implements Cache {
 
   @Override
   public int getSize() {
-    try (ResultSet<SqlRow> rs = igniteClient.sql().execute(null, "SELECT COUNT(*) FROM " + tableName)) {
+    try (ResultSet<SqlRow> rs = client.sql().execute(null, "SELECT COUNT(*) FROM " + tableName)) {
       return rs.hasNext() ? (int) rs.next().longValue(0) : 0;
     }
   }
@@ -150,12 +188,12 @@ public final class IgniteCacheAdapter implements Cache {
     return readWriteLock;
   }
 
-  private static String toTableName(String id) {
+  static String toTableName(String id) {
     // Sanitize to alphanumeric and underscore only, ensuring safe use in SQL identifiers.
     return id.replaceAll("[^a-zA-Z0-9_]", "_").toUpperCase();
   }
 
-  private static byte[] serialize(Object obj) {
+  static byte[] serialize(Object obj) {
     try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos)) {
       oos.writeObject(obj);
@@ -165,7 +203,7 @@ public final class IgniteCacheAdapter implements Cache {
     }
   }
 
-  private static Object deserialize(byte[] bytes) {
+  static Object deserialize(byte[] bytes) {
     if (bytes == null) {
       return null;
     }
