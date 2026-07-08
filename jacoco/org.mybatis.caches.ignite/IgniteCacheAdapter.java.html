@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IgniteCacheAdapter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mybatis-ignite</a> &gt; <a href="index.source.html" class="el_package">org.mybatis.caches.ignite</a> &gt; <span class="el_source">IgniteCacheAdapter.java</span></div><h1>IgniteCacheAdapter.java</h1><pre class="source lang-java linenums">/*
- *    Copyright 2016-2025 the original author or authors.
+ *    Copyright 2016-2026 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
  *    you may not use this file except in compliance with the License.
@@ -15,67 +15,101 @@
  */
 package org.mybatis.caches.ignite;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Properties;
 import java.util.concurrent.locks.ReadWriteLock;
 
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
-import org.apache.ignite.Ignite;
-import org.apache.ignite.IgniteCache;
-import org.apache.ignite.IgniteIllegalStateException;
-import org.apache.ignite.Ignition;
-import org.apache.ignite.cache.CachePeekMode;
-import org.apache.ignite.configuration.CacheConfiguration;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.core.io.FileSystemResource;
+import org.apache.ignite.catalog.ColumnType;
+import org.apache.ignite.catalog.definitions.ColumnDefinition;
+import org.apache.ignite.catalog.definitions.TableDefinition;
+import org.apache.ignite.client.IgniteClient;
+import org.apache.ignite.sql.ResultSet;
+import org.apache.ignite.sql.SqlRow;
+import org.apache.ignite.table.KeyValueView;
+import org.apache.ignite.table.Tuple;
 
 /**
- * Cache adapter for Ignite. Cache is initialized from IGNITE_HOME/config/default-config.xml settings, otherwise default
- * one is started.
+ * Cache adapter for Ignite 3. Connects to a running Ignite 3 cluster via thin client. The server address is read from
+ * {@value #CFG_PATH} (property {@code ignite.addresses}), otherwise the default {@value #DEFAULT_ADDRESSES} is used.
  *
  * @author Roman Shtykh
  */
 public final class IgniteCacheAdapter implements Cache {
 
   /** Logger. */
-<span class="fc" id="L45">  private static final Log log = LogFactory.getLog(IgniteCacheAdapter.class);</span>
+<span class="fc" id="L50">  private static final Log log = LogFactory.getLog(IgniteCacheAdapter.class);</span>
 
   /** Cache id. */
   private final String id;
 
+  /** Table name derived from the cache id. */
+  private final String tableName;
+
   /**
    * {@code ReadWriteLock}.
    */
-<span class="fc" id="L53">  private final ReadWriteLock readWriteLock = new DummyReadWriteLock();</span>
+<span class="fc" id="L61">  private final ReadWriteLock readWriteLock = new DummyReadWriteLock();</span>
 
-  /** Grid instance. */
-  private static final Ignite ignite;
+  /** Ignite thin client (shared across all adapter instances). Lazily initialized. */
+  private static volatile IgniteClient sharedClient;
 
-  /** Cache. */
-  private final IgniteCache&lt;Object, Object&gt; cache;
+  /** This adapter's Ignite client. */
+  private final IgniteClient client;
 
-  /** Ignite configuration file path. */
-  private static final String CFG_PATH = &quot;config/default-config.xml&quot;;
+  /** Key-value view for this cache's table. */
+  private final KeyValueView&lt;Tuple, Tuple&gt; cache;
 
-  static {
-<span class="fc" id="L65">    boolean started = false;</span>
-    try {
-<span class="nc" id="L67">      Ignition.ignite();</span>
-<span class="nc" id="L68">      started = true;</span>
-<span class="fc" id="L69">    } catch (IgniteIllegalStateException e) {</span>
-<span class="fc" id="L70">      log.debug(&quot;Using the Ignite instance that has been already started.&quot;);</span>
-<span class="fc" id="L71">      log.trace(&quot;&quot; + e);</span>
-<span class="nc" id="L72">    }</span>
-<span class="pc bpc" id="L73" title="1 of 2 branches missed.">    if (started) {</span>
-<span class="nc" id="L74">      ignite = Ignition.ignite();</span>
-    } else {
-<span class="fc" id="L76">      ignite = Ignition.start();</span>
+  /** Default Ignite 3 thin client port. */
+  static final String DEFAULT_ADDRESSES = &quot;127.0.0.1:10800&quot;;
+
+  /** Ignite client configuration file path. */
+  static final String CFG_PATH = &quot;config/default-config.properties&quot;;
+
+  /** Table key column name. */
+  static final String KEY_COL = &quot;key&quot;;
+
+  /** Table value column name. */
+  static final String VAL_COL = &quot;val&quot;;
+
+  /**
+   * Returns the shared {@link IgniteClient}, creating it lazily on first call.
+   */
+  private static IgniteClient getOrCreateIgniteClient() {
+<span class="fc bfc" id="L88" title="All 2 branches covered.">    if (sharedClient == null) {</span>
+<span class="fc" id="L89">      synchronized (IgniteCacheAdapter.class) {</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        if (sharedClient == null) {</span>
+<span class="nc" id="L91">          sharedClient = createIgniteClient();</span>
+        }
+<span class="nc" id="L93">      }</span>
     }
-<span class="fc" id="L78">  }</span>
+<span class="fc" id="L95">    return sharedClient;</span>
+  }
+
+  /**
+   * Creates a new {@link IgniteClient} from the configuration file or defaults.
+   */
+  static IgniteClient createIgniteClient() {
+<span class="fc" id="L102">    String addresses = DEFAULT_ADDRESSES;</span>
+<span class="fc" id="L103">    Properties props = new Properties();</span>
+<span class="fc" id="L104">    try (InputStream is = Files.newInputStream(Path.of(CFG_PATH))) {</span>
+<span class="fc" id="L105">      props.load(is);</span>
+<span class="fc" id="L106">      addresses = props.getProperty(&quot;ignite.addresses&quot;, DEFAULT_ADDRESSES);</span>
+<span class="fc" id="L107">    } catch (IOException e) {</span>
+<span class="fc" id="L108">      log.debug(&quot;Ignite config file not found at '&quot; + CFG_PATH + &quot;', using defaults.&quot;);</span>
+<span class="fc" id="L109">      log.trace(&quot;&quot; + e);</span>
+<span class="fc" id="L110">    }</span>
+<span class="nc" id="L111">    return IgniteClient.builder().addresses(addresses.split(&quot;,&quot;)).build();</span>
+  }
 
   /**
    * Constructor.
@@ -83,73 +117,102 @@ public final class IgniteCacheAdapter implements Cache {
    * @param id
    *          Cache id.
    */
-  @SuppressWarnings(&quot;unchecked&quot;)
-<span class="fc" id="L87">  public IgniteCacheAdapter(String id) {</span>
-<span class="fc bfc" id="L88" title="All 2 branches covered.">    if (id == null) {</span>
-<span class="fc" id="L89">      throw new IllegalArgumentException(&quot;Cache instances require an ID&quot;);</span>
+  public IgniteCacheAdapter(String id) {
+<span class="fc" id="L121">    this(requireNonNullId(id), getOrCreateIgniteClient());</span>
+<span class="fc" id="L122">  }</span>
+
+  private static String requireNonNullId(String id) {
+<span class="fc bfc" id="L125" title="All 2 branches covered.">    if (id == null) {</span>
+<span class="fc" id="L126">      throw new IllegalArgumentException(&quot;Cache instances require an ID&quot;);</span>
     }
+<span class="fc" id="L128">    return id;</span>
+  }
 
-<span class="fc" id="L92">    CacheConfiguration&lt;Object, Object&gt; cacheCfg = null;</span>
+  /**
+   * Package-private constructor for testing: allows injection of a mock {@link IgniteClient} without requiring a
+   * running Ignite cluster.
+   *
+   * @param id
+   *          Cache id.
+   * @param igniteClient
+   *          The {@link IgniteClient} to use.
+   */
+<span class="fc" id="L140">  IgniteCacheAdapter(String id, IgniteClient igniteClient) {</span>
+<span class="fc" id="L141">    this.id = requireNonNullId(id);</span>
+<span class="fc" id="L142">    this.tableName = toTableName(id);</span>
+<span class="fc" id="L143">    this.client = igniteClient;</span>
 
-    try {
-<span class="fc" id="L95">      DefaultListableBeanFactory factory = new DefaultListableBeanFactory();</span>
+<span class="fc" id="L145">    igniteClient.catalog().createTable(</span>
+<span class="fc" id="L146">        TableDefinition.builder(tableName).ifNotExists().columns(ColumnDefinition.column(KEY_COL, ColumnType.VARBINARY),</span>
+<span class="fc" id="L147">            ColumnDefinition.column(VAL_COL, ColumnType.VARBINARY)).primaryKey(KEY_COL).build());</span>
 
-<span class="fc" id="L97">      new XmlBeanDefinitionReader(factory).loadBeanDefinitions(new FileSystemResource(Path.of(CFG_PATH)));</span>
-
-<span class="fc" id="L99">      cacheCfg = (CacheConfiguration&lt;Object, Object&gt;) factory.getBean(&quot;templateCacheCfg&quot;);</span>
-
-<span class="fc" id="L101">      cacheCfg.setEvictionPolicyFactory(null);</span>
-<span class="fc" id="L102">      cacheCfg.setCacheLoaderFactory(null);</span>
-<span class="fc" id="L103">      cacheCfg.setCacheWriterFactory(null);</span>
-
-      // overrides template cache name with the specified id.
-<span class="fc" id="L106">      cacheCfg.setName(id);</span>
-<span class="fc" id="L107">    } catch (NoSuchBeanDefinitionException | BeanDefinitionStoreException e) {</span>
-      // initializes the default cache.
-<span class="fc" id="L109">      log.warn(&quot;Initializing the default cache. Consider properly configuring '&quot; + CFG_PATH + &quot;' instead.&quot;);</span>
-<span class="fc" id="L110">      log.trace(&quot;&quot; + e);</span>
-
-<span class="fc" id="L112">      cacheCfg = new CacheConfiguration&lt;&gt;(id);</span>
-<span class="fc" id="L113">    }</span>
-
-<span class="fc" id="L115">    cache = ignite.getOrCreateCache(cacheCfg);</span>
-
-<span class="fc" id="L117">    this.id = id;</span>
-<span class="fc" id="L118">  }</span>
+<span class="fc" id="L149">    cache = igniteClient.tables().table(tableName).keyValueView();</span>
+<span class="fc" id="L150">  }</span>
 
   @Override
   public String getId() {
-<span class="fc" id="L122">    return this.id;</span>
+<span class="fc" id="L154">    return this.id;</span>
   }
 
   @Override
   public void putObject(Object key, Object value) {
-<span class="fc" id="L127">    cache.put(key, value);</span>
-<span class="fc" id="L128">  }</span>
+<span class="fc" id="L159">    cache.put(null, Tuple.create().set(KEY_COL, serialize(key)), Tuple.create().set(VAL_COL, serialize(value)));</span>
+<span class="fc" id="L160">  }</span>
 
   @Override
   public Object getObject(Object key) {
-<span class="fc" id="L132">    return cache.get(key);</span>
+<span class="fc" id="L164">    Tuple valueTuple = cache.get(null, Tuple.create().set(KEY_COL, serialize(key)));</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">    return valueTuple != null ? deserialize(valueTuple.bytesValue(VAL_COL)) : null;</span>
   }
 
   @Override
   public Object removeObject(Object key) {
-<span class="fc" id="L137">    return cache.remove(key);</span>
+<span class="fc" id="L170">    Tuple valueTuple = cache.getAndRemove(null, Tuple.create().set(KEY_COL, serialize(key)));</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">    return valueTuple != null ? deserialize(valueTuple.bytesValue(VAL_COL)) : null;</span>
   }
 
   @Override
   public void clear() {
-<span class="fc" id="L142">    cache.clear();</span>
-<span class="fc" id="L143">  }</span>
+<span class="fc" id="L176">    cache.removeAll(null);</span>
+<span class="fc" id="L177">  }</span>
 
   @Override
   public int getSize() {
-<span class="fc" id="L147">    return cache.size(CachePeekMode.PRIMARY);</span>
+<span class="fc" id="L181">    try (ResultSet&lt;SqlRow&gt; rs = client.sql().execute(null, &quot;SELECT COUNT(*) FROM &quot; + tableName)) {</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">      return rs.hasNext() ? (int) rs.next().longValue(0) : 0;</span>
+    }
   }
 
   @Override
   public ReadWriteLock getReadWriteLock() {
-<span class="nc" id="L152">    return readWriteLock;</span>
+<span class="fc" id="L188">    return readWriteLock;</span>
+  }
+
+  static String toTableName(String id) {
+    // Sanitize to alphanumeric and underscore only, ensuring safe use in SQL identifiers.
+<span class="fc" id="L193">    return id.replaceAll(&quot;[^a-zA-Z0-9_]&quot;, &quot;_&quot;).toUpperCase();</span>
+  }
+
+  static byte[] serialize(Object obj) {
+<span class="fc" id="L197">    try (ByteArrayOutputStream baos = new ByteArrayOutputStream();</span>
+<span class="fc" id="L198">        ObjectOutputStream oos = new ObjectOutputStream(baos)) {</span>
+<span class="fc" id="L199">      oos.writeObject(obj);</span>
+<span class="fc" id="L200">      return baos.toByteArray();</span>
+<span class="fc" id="L201">    } catch (IOException e) {</span>
+<span class="fc" id="L202">      throw new IllegalArgumentException(&quot;Cannot serialize object of type &quot; + obj.getClass().getName(), e);</span>
+    }
+  }
+
+  static Object deserialize(byte[] bytes) {
+<span class="fc bfc" id="L207" title="All 2 branches covered.">    if (bytes == null) {</span>
+<span class="fc" id="L208">      return null;</span>
+    }
+<span class="fc" id="L210">    try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes);</span>
+<span class="fc" id="L211">        ObjectInputStream ois = new ObjectInputStream(bais)) {</span>
+<span class="fc" id="L212">      return ois.readObject();</span>
+<span class="fc" id="L213">    } catch (IOException | ClassNotFoundException e) {</span>
+<span class="fc" id="L214">      throw new IllegalStateException(&quot;Cannot deserialize cache object&quot;, e);</span>
+    }
   }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
