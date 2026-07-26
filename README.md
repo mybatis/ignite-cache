@@ -10,8 +10,3 @@ MyBatis Ignite Extension
 ![mybatis-ignite](https://mybatis.org/images/mybatis-logo.png)
 
 MyBatis-Ignite extension Ignite support for MyBatis Cache.
-
-Essentials
-----------
-
-* [See the docs](https://mybatis.org/ignite-cache/)
