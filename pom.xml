@@ -60,7 +60,7 @@
   </distributionManagement>
 
   <properties>
-    <clirr.comparisonVersion>1.0.6</clirr.comparisonVersion>
+    <clirr.comparisonVersion>1.2.0</clirr.comparisonVersion>
     <findbugs.onlyAnalyze>org.mybatis.caches.ignite.*</findbugs.onlyAnalyze>
     <gcu.product>Cache</gcu.product>
     <module.name>org.mybatis.caches.ignite</module.name>
@@ -71,6 +71,8 @@
 
     <!-- Reproducible Builds -->
     <project.build.outputTimestamp>1783551320</project.build.outputTimestamp>
+
+    <argLine>-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
   </properties>
 
   <dependencies>
@@ -132,5 +134,17 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>3.5.6</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 
 </project>

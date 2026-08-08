@@ -16,8 +16,7 @@
        limitations under the License.
 
 -->
-<document xmlns="http://maven.apache.org/XDOC/2.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
 
   <properties>
@@ -26,12 +25,13 @@
 
   <body>
     <section name="MyBatis Ignite Integration - Reference Documentation">
-
-    <p><a href="https://apacheignite.readme.io/">Apache Ignite</a> is a high-performance, integrated and distributed in-memory platform for computing and transacting on large-scale data sets in real-time, orders of magnitude faster than possible with traditional disk-based or flash technologies.</p>
-    <p>Users who want to use Apache Ignite in their applications as a 2nd level cache have to download the
-    <a href="https://github.com/mybatis/ignite-cache/releases">zip bundle</a>, decompress it and add the jars in the classpath.
-    Apache Maven users instead can simply add in the <code>pom.xml</code> the following dependency:</p>
-    <source><![CDATA[<dependencies>
+      <p>
+         <a href="https://ignite.apache.org/">Apache Ignite</a> is a distributed database for high-performance computing and low-latency data access.
+      </p>
+      <p>Users who want to use Apache Ignite in their applications as a second-level cache can add the following dependency to their 
+         <code>pom.xml</code>:
+      </p>
+      <source><![CDATA[<dependencies>
   ...
   <dependency>
     <groupId>${project.groupId}</groupId>
@@ -39,18 +39,17 @@
     <version>${project.version}</version>
   </dependency>
   ...
-</dependencies>]]></source>
-            <p>then, configure it in the mapper XML</p>
-            <source><![CDATA[<mapper namespace="org.acme.FooMapper">
-  <cache type="org.mybatis.caches.ignite.IgniteCacheAdapter" />
-</mapper>]]></source>
-
-  <p>and configure your Ignite cache in <code>config/default-config.xml</code> by specifying the properties of <code>"templateCacheCfg"</code> bean (Basic reference configurations are available <a href="https://github.com/mybatis/ignite-cache/tree/master/config">here</a>.)
-  If <code>config/default-config.xml</code> is not available, the cache is started with the default settings.</p>
-  
-  <p>For more details, please see <a href="https://apacheignite.readme.io/">Apache Ignite docs</a> or ask in <a href="http://apache-ignite-users.70518.x6.nabble.com/">the mailing list</a>.</p>
-
-        </section>
-    </body>
+        </dependencies>]]></source>
+      <p>Then, configure it in the mapper XML:</p>
+      <source>
+        <![CDATA[<cache type="org.mybatis.caches.ignite.IgniteCacheAdapter"/>]]>
+      </source>
+      <p>The cache adapter uses the Apache Ignite 3 client API to connect to an Ignite server. By default, it connects to 
+        <code>127.0.0.1:10800</code>. The connection address can be customized using the 
+        <code>ignite.addresses</code> property in 
+        <code>config/default-config.properties</code>.
+      </p>
+    </section>
+  </body>
 
 </document>
