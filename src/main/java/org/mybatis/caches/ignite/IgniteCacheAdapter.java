@@ -60,9 +60,6 @@ public final class IgniteCacheAdapter implements Cache {
    */
   private final ReadWriteLock readWriteLock = new DummyReadWriteLock();
 
-  /** Ignite thin client (shared across all adapter instances). Lazily initialized. */
-  private static volatile IgniteClient sharedClient;
-
   /** This adapter's Ignite client. */
   private final IgniteClient client;
 
@@ -81,18 +78,16 @@ public final class IgniteCacheAdapter implements Cache {
   /** Table value column name. */
   static final String VAL_COL = "val";
 
+  /** Ignite thin client (shared across all adapter instances). Lazily initialized. */
+  private static class ClientHolder {
+    private static final IgniteClient INSTANCE = createIgniteClient();
+  }
+
   /**
    * Returns the shared {@link IgniteClient}, creating it lazily on first call.
    */
   private static IgniteClient getOrCreateIgniteClient() {
-    if (sharedClient == null) {
-      synchronized (IgniteCacheAdapter.class) {
-        if (sharedClient == null) {
-          sharedClient = createIgniteClient();
-        }
-      }
-    }
-    return sharedClient;
+    return ClientHolder.INSTANCE;
   }
 
   /**
