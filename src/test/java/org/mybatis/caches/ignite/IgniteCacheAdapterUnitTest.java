@@ -27,6 +27,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+
 import org.apache.ignite.catalog.IgniteCatalog;
 import org.apache.ignite.catalog.definitions.TableDefinition;
 import org.apache.ignite.client.IgniteClient;
@@ -37,6 +41,7 @@ import org.apache.ignite.table.IgniteTables;
 import org.apache.ignite.table.KeyValueView;
 import org.apache.ignite.table.Table;
 import org.apache.ignite.table.Tuple;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -251,16 +256,16 @@ class IgniteCacheAdapterUnitTest {
   void shouldFallbackToDefaultAddressWhenConfigFileMissing() throws Exception {
     // Hide the config file so createIgniteClient() takes the IOException fallback branch,
     // then verify it throws because no Ignite server is reachable.
-    java.nio.file.Path cfgFile = java.nio.file.Path.of(IgniteCacheAdapter.CFG_PATH);
-    java.nio.file.Path cfgBkp = java.nio.file.Path.of(IgniteCacheAdapter.CFG_PATH + ".unit_bkp");
-    org.junit.jupiter.api.Assumptions.assumeTrue(java.nio.file.Files.exists(cfgFile), "Config file not present");
-    java.nio.file.Files.move(cfgFile, cfgBkp, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+    Path cfgFile = Path.of(IgniteCacheAdapter.CFG_PATH);
+    Path cfgBkp = Path.of(IgniteCacheAdapter.CFG_PATH + ".unit_bkp");
+    Assumptions.assumeTrue(Files.exists(cfgFile), "Config file not present");
+    Files.move(cfgFile, cfgBkp, StandardCopyOption.REPLACE_EXISTING);
     try {
       // createIgniteClient() will log the IOException and fall back to DEFAULT_ADDRESSES;
       // build() then throws because no server is running.
       assertThrows(Exception.class, IgniteCacheAdapter::createIgniteClient);
     } finally {
-      java.nio.file.Files.move(cfgBkp, cfgFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+      Files.move(cfgBkp, cfgFile, StandardCopyOption.REPLACE_EXISTING);
     }
   }
 }

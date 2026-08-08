@@ -18,7 +18,6 @@ package org.mybatis.caches.ignite;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.nio.file.Path;
 
@@ -29,7 +28,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Ignite Test Case.
  */
-class IgniteCacheAdapterTestCase {
+class IgniteCacheAdapterIT {
   private static final String DEFAULT_ID = "Ignite";
 
   private static IgniteCacheAdapter cache;
@@ -38,11 +37,7 @@ class IgniteCacheAdapterTestCase {
 
   @BeforeAll
   static void newCache() {
-    try {
-      cache = new IgniteCacheAdapter(DEFAULT_ID);
-    } catch (Throwable t) {
-      assumeTrue(false, "Ignite 3 server not available, skipping tests: " + t.getMessage());
-    }
+    cache = new IgniteCacheAdapter(DEFAULT_ID);
   }
 
   @Test

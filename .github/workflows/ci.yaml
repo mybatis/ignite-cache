@@ -33,6 +33,8 @@ jobs:
           cache: ${{ matrix.cache }}
           distribution: ${{ matrix.distribution }}
           java-version: ${{ matrix.java }}
+      - name: Test with Maven
+        run: ./mvnw test --batch-mode --no-transfer-progress --show-version -D"license.skip=true"
       - name: Setup Ignite
         if: matrix.os == 'ubuntu-latest'
         shell: bash
@@ -41,8 +43,8 @@ jobs:
           curl -L -o ignite-cli.zip https://dlcdn.apache.org/ignite/${IGNITE_VERSION}/ignite3-cli-${IGNITE_VERSION}.zip
           unzip -q ignite-db.zip
           unzip -q ignite-cli.zip
-          mv ignite3-db-3.1.0 ignite-db
-          mv ignite3-cli-3.1.0 ignite-cli
+          mv ignite3-db-${IGNITE_VERSION} ignite-db
+          mv ignite3-cli-${IGNITE_VERSION} ignite-cli
 
           ./ignite-db/bin/ignite3db > ignite.log 2>&1 &
           echo $! > ignite.pid
@@ -54,6 +56,19 @@ jobs:
             sleep 2
           done
 
+          if ! curl -sf http://127.0.0.1:10300/management/v1/node/state >/dev/null; then
+            cat ignite.log
+            exit 1
+          fi
+
           ./ignite-cli/bin/ignite3 cluster init --name=mybatis
-      - name: Test with Maven
-        run: ./mvnw test --batch-mode --no-transfer-progress --show-version -D"license.skip=true"
+      - name: Integration tests with Maven
+        if: matrix.os == 'ubuntu-latest'
+        run: ./mvnw failsafe:integration-test failsafe:verify --batch-mode --no-transfer-progress --show-version -D"license.skip=true"
+      - name: Stop Ignite
+        if: always() && matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          if [ -f ignite.pid ]; then
+            kill "$(cat ignite.pid)" || true
+          fi
