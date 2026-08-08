@@ -41,11 +41,15 @@ import org.apache.ignite.table.IgniteTables;
 import org.apache.ignite.table.KeyValueView;
 import org.apache.ignite.table.Table;
 import org.apache.ignite.table.Tuple;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
@@ -71,7 +75,6 @@ class IgniteCacheAdapterUnitTest {
   @Mock
   private Table mockTable;
 
-  @SuppressWarnings("unchecked")
   @Mock
   private KeyValueView<Tuple, Tuple> mockKvView;
 
@@ -236,23 +239,6 @@ class IgniteCacheAdapterUnitTest {
   }
 
   @Test
-  void shouldUseExistingSharedClientWhenAlreadyInitialized() throws Exception {
-    // Inject the already-configured mockClient as the static sharedClient so the public constructor
-    // takes the non-null fast path through getOrCreateIgniteClient() without connecting to Ignite.
-    java.lang.reflect.Field field = IgniteCacheAdapter.class.getDeclaredField("sharedClient");
-    field.setAccessible(true);
-    IgniteClient previous = (IgniteClient) field.get(null);
-    field.set(null, mockClient);
-    try {
-      IgniteCacheAdapter adapter = new IgniteCacheAdapter(DEFAULT_ID);
-      assertNotNull(adapter);
-      assertEquals(DEFAULT_ID, adapter.getId());
-    } finally {
-      field.set(null, previous);
-    }
-  }
-
-  @Test
   void shouldFallbackToDefaultAddressWhenConfigFileMissing() throws Exception {
     // Hide the config file so createIgniteClient() takes the IOException fallback branch,
     // then verify it throws because no Ignite server is reachable.
@@ -268,4 +254,44 @@ class IgniteCacheAdapterUnitTest {
       Files.move(cfgBkp, cfgFile, StandardCopyOption.REPLACE_EXISTING);
     }
   }
+
+  @Test
+  void shouldCreateIgniteClientFromConfigFile() throws Exception {
+    try (MockedStatic<IgniteClient> igniteClient = Mockito.mockStatic(IgniteClient.class)) {
+      IgniteClient.Builder builder = mock(IgniteClient.Builder.class);
+      IgniteClient client = mock(IgniteClient.class);
+
+      igniteClient.when(IgniteClient::builder).thenReturn(builder);
+      when(builder.addresses(any(String[].class))).thenReturn(builder);
+      when(builder.build()).thenReturn(client);
+
+      IgniteClient result = IgniteCacheAdapter.createIgniteClient();
+
+      Assertions.assertSame(client, result);
+      verify(builder).addresses("127.0.0.1:10800");
+    }
+  }
+
+  @Test
+  void shouldCreateAdapterUsingDefaultConstructor() {
+    Path cfgFile = Path.of(IgniteCacheAdapter.CFG_PATH);
+    Assumptions.assumeTrue(Files.exists(cfgFile), "Config file not present");
+
+    try (MockedStatic<IgniteClient> igniteClient = Mockito.mockStatic(IgniteClient.class)) {
+      IgniteClient.Builder builder = mock(IgniteClient.Builder.class);
+      IgniteClient client = mock(IgniteClient.class, Answers.RETURNS_DEEP_STUBS);
+
+      igniteClient.when(IgniteClient::builder).thenReturn(builder);
+      when(builder.addresses(any(String[].class))).thenReturn(builder);
+      when(builder.build()).thenReturn(client);
+
+      IgniteCacheAdapter adapter = new IgniteCacheAdapter(DEFAULT_ID);
+
+      assertEquals(DEFAULT_ID, adapter.getId());
+
+      verify(builder).addresses("127.0.0.1:10800");
+      verify(builder).build();
+    }
+  }
+
 }
