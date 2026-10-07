@@ -66,7 +66,7 @@
     <module.name>org.mybatis.caches.ignite</module.name>
 
     <ignite.version>3.1.0</ignite.version>
-    <mockito.version>5.23.0</mockito.version>
+    <mockito.version>5.24.0</mockito.version>
     <slf4j.version>2.0.20</slf4j.version>
 
     <!-- Reproducible Builds -->
